@@ -12,30 +12,31 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-interface loginState {
-  studentid: string;
-  password: string;
-}
-
 const formSchema = z.object({
   studentid: z
     .string()
-    .regex(/[0-9]/, "Student ID should only contain numbers."),
+    .min(1, "Student ID is required.")
+    .regex(/^[0-9]+$/, "Student ID must only contain numbers."),
   password: z
     .string()
-    .regex(/[A-Z]/, "Password should contain at least 1 uppercase letter")
-    .regex(/[0-9]/, "Password should contain at least 1 number")
-    .regex(/^\S*$/, "Password should not contain any spaces"),
+    .min(6, "Password must be at least 6 characters.")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter.")
+    .regex(/[0-9]/, "Password must contain at least one number.")
+    .regex(/^\S*$/, "Password must not contain any spaces."),
 });
 
-export default function login() {
+type LoginFormValues = z.infer<typeof formSchema>;
+
+export default function LoginPage() {
   const router = useRouter();
-  const form = useForm<loginState>({
+
+  const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       studentid: "",
@@ -43,7 +44,8 @@ export default function login() {
     },
   });
 
-  const handleSubmit = () => {
+  const onSubmit = (data: LoginFormValues) => {
+    console.log("Form submitted with:", data);
     router.push("/home");
   };
 
@@ -51,11 +53,17 @@ export default function login() {
     <div className="flex h-screen w-screen items-center justify-center bg-[rgb(50,70,70)]">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(handleSubmit)}
+          onSubmit={form.handleSubmit(onSubmit)}
           className="flex w-130 flex-col items-center space-y-3 rounded-3xl bg-[rgb(200,220,220)] p-10 px-15"
         >
           <div className="mb-10 flex flex-col items-center">
-            <img className="mb-3 w-15" src="globe.svg" alt="logo" />
+            <Image
+              className="mb-3"
+              src="/globe.svg"
+              alt="logo"
+              width={60}
+              height={60}
+            />
             <h1 className="text-center text-3xl font-extrabold tracking-tight">
               Login
             </h1>

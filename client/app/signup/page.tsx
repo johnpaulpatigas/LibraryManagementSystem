@@ -11,34 +11,32 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MoveLeft } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-interface signupState {
-  name: string;
-  studentid: string;
-  email: string;
-  password: string;
-}
-
 const formSchema = z.object({
-  name: z.string(),
+  name: z.string().min(2, "Name must be at least 2 characters."),
   studentid: z
     .string()
-    .regex(/[0-9]/, "Student ID should only contain numbers."),
-  email: z.string(),
+    .min(1, "Student ID is required.")
+    .regex(/^[0-9]+$/, "Student ID must only contain numbers."),
+  email: z.email("Please enter a valid email address."),
   password: z
     .string()
-    .regex(/[A-Z]/, "Password should contain at least 1 uppercase letter")
-    .regex(/[0-9]/, "Password should contain at least 1 number")
-    .regex(/^\S*$/, "Password should not contain any spaces"),
+    .min(8, "Password must be at least 8 characters.")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter.")
+    .regex(/[0-9]/, "Password must contain at least one number.")
+    .regex(/^\S*$/, "Password must not contain any spaces."),
 });
 
-export default function signup() {
+type SignupFormValues = z.infer<typeof formSchema>;
+
+export default function SignupPage() {
   const router = useRouter();
-  const form = useForm<signupState>({
+  const form = useForm<SignupFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -48,7 +46,8 @@ export default function signup() {
     },
   });
 
-  const handleSubmit = () => {
+  const onSubmit = (data: SignupFormValues) => {
+    console.log("Signup form submitted successfully!", data);
     router.push("/home");
   };
 
@@ -56,11 +55,17 @@ export default function signup() {
     <div className="flex h-screen w-screen items-center justify-center bg-[rgb(50,70,70)]">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(handleSubmit)}
+          onSubmit={form.handleSubmit(onSubmit)}
           className="flex w-130 flex-col items-center space-y-3 rounded-3xl bg-[rgb(200,220,220)] p-10 px-15"
         >
           <div className="mb-10 flex flex-col items-center">
-            <img className="mb-3 w-15" src="globe.svg" alt="logo" />
+            <Image
+              className="mb-3"
+              src="/globe.svg"
+              alt="logo"
+              width={60}
+              height={60}
+            />
             <h1 className="text-center text-3xl font-extrabold tracking-tight">
               User Sign Up
             </h1>
