@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { MoveLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -84,10 +85,14 @@ export default function ForgotPasswordPage() {
           >
             Send Reset Link
           </Button>
-          <div className="mt-3 flex w-full justify-center">
+          <div className="mt-3 flex w-full items-center justify-center gap-2">
             <small className="text-sm leading-none font-medium">
-              <Link className="text-green-700" href="/login">
-                ← Back to Login
+              <Link
+                className="flex items-center justify-center gap-2 text-green-700"
+                href="/login"
+              >
+                <MoveLeft color="#3c9d2f" size={10} strokeWidth={3} />
+                Back to Login
               </Link>
             </small>
           </div>
