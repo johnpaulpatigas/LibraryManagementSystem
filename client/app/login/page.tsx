@@ -68,7 +68,7 @@ export default function LoginPage() {
               Login
             </h1>
             <p className="text-muted-foreground text-sm">
-              Your Gateway to Knowledge
+              Your gateway to knowledge
             </p>
           </div>
           <div className="w-full space-y-3">
@@ -105,7 +105,7 @@ export default function LoginPage() {
                     <Input
                       type="password"
                       className="bg-white"
-                      placeholder="Enter your Password"
+                      placeholder="Enter your password"
                       {...field}
                     />
                   </FormControl>

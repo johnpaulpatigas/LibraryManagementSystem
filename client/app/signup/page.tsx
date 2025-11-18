@@ -70,7 +70,7 @@ export default function SignupPage() {
               User Sign Up
             </h1>
             <p className="text-muted-foreground text-sm">
-              Your journey to Knowledge begins here
+              Your journey to knowledge begins here
             </p>
           </div>
           <div className="w-full space-y-3">
@@ -86,7 +86,7 @@ export default function SignupPage() {
                     <Input
                       type="text"
                       className="bg-white"
-                      placeholder="Enter your Fullname"
+                      placeholder="Enter your full name"
                       {...field}
                     />
                   </FormControl>
@@ -127,7 +127,7 @@ export default function SignupPage() {
                     <Input
                       type="text"
                       className="bg-white"
-                      placeholder="Enter your Email"
+                      placeholder="Enter your email"
                       {...field}
                     />
                   </FormControl>
