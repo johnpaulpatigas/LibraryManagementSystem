@@ -117,7 +117,7 @@ export default function SignupPage() {
             />
             <FormField
               control={form.control}
-              name="studentid"
+              name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-md font-mediumbold">
