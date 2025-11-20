@@ -1,4 +1,5 @@
 "use client";
+import ChangePasswordModal from "@/components/ChangePasswordModal";
 import {
   Book,
   BookMarked,
@@ -10,6 +11,7 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 const LibraryLogo = () => (
   <div className="flex justify-center py-8">
@@ -80,7 +82,11 @@ const StudentSidebar = () => {
   );
 };
 
-const StudentHeader = () => (
+const StudentHeader = ({
+  onSettingsClick,
+}: {
+  onSettingsClick: () => void;
+}) => (
   <div className="flex items-center justify-between">
     <div className="flex items-center gap-4">
       <User className="h-10 w-10 text-black" />
@@ -94,7 +100,10 @@ const StudentHeader = () => (
         <p className="font-semibold text-slate-800">12:00 AM</p>
         <p className="text-sm text-slate-500">Sep 27, 2025</p>
       </div>
-      <button className="text-slate-600 hover:text-slate-900">
+      <button
+        onClick={onSettingsClick}
+        className="text-slate-600 hover:text-slate-900"
+      >
         <Settings className="h-7 w-7" />
       </button>
     </div>
@@ -121,11 +130,13 @@ const NavCard = ({
 );
 
 export default function StudentDashboardPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="flex h-screen bg-[#c8dcdc] font-sans">
       <StudentSidebar />
       <main className="flex flex-1 flex-col gap-12 overflow-y-auto p-8">
-        <StudentHeader />
+        <StudentHeader onSettingsClick={() => setIsModalOpen(true)} />
 
         <div className="flex flex-1 items-start justify-center gap-12 pt-10">
           <div className="flex w-full max-w-md flex-col gap-8">
@@ -156,6 +167,10 @@ export default function StudentDashboardPage() {
           </div>
         </div>
       </main>
+
+      {isModalOpen && (
+        <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
+      )}
     </div>
   );
 }

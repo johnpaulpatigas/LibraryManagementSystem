@@ -1,19 +1,20 @@
 "use client";
-import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import ChangePasswordModal from "@/components/ChangePasswordModal";
 import {
-  LayoutDashboard,
   BookCopy,
   BookOpen,
-  Users,
-  LogOut,
-  Shield,
-  Settings,
-  Search,
-  FileText,
   ChevronLeft,
+  FileText,
+  LayoutDashboard,
+  LogOut,
+  Search,
+  Settings,
+  Shield,
+  Users,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 
 const borrowedBooksData = Array(12).fill({
   id: "001",
@@ -85,7 +86,7 @@ const Sidebar = () => {
   );
 };
 
-const PageHeader = () => (
+const PageHeader = ({ onSettingsClick }: { onSettingsClick: () => void }) => (
   <div className="flex items-center justify-between">
     <div className="flex items-center gap-3">
       <div className="rounded-lg bg-black p-2">
@@ -101,7 +102,10 @@ const PageHeader = () => (
         <p className="font-semibold text-slate-800">12:00 AM</p>
         <p className="text-sm text-slate-500">Sep 27, 2025</p>
       </div>
-      <button className="text-slate-600 hover:text-slate-900">
+      <button
+        onClick={onSettingsClick}
+        className="text-slate-600 hover:text-slate-900"
+      >
         <Settings className="h-7 w-7" />
       </button>
     </div>
@@ -111,6 +115,7 @@ const PageHeader = () => (
 export default function CatalogPage() {
   const [view, setView] = useState("initial");
   const [activeTab, setActiveTab] = useState("borrowed");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleShowTable = (tab: string) => {
     setActiveTab(tab);
@@ -125,7 +130,7 @@ export default function CatalogPage() {
     <div className="flex h-screen bg-[#c8dcdc] font-sans">
       <Sidebar />
       <main className="flex flex-1 flex-col gap-8 overflow-y-auto p-8">
-        <PageHeader />
+        <PageHeader onSettingsClick={() => setIsModalOpen(true)} />
 
         <div className="flex flex-1 flex-col gap-6">
           <div className="flex items-center justify-between">
@@ -217,6 +222,10 @@ export default function CatalogPage() {
           )}
         </div>
       </main>
+
+      {isModalOpen && (
+        <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
+      )}
     </div>
   );
 }

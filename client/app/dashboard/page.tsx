@@ -1,4 +1,5 @@
 "use client";
+import ChangePasswordModal from "@/components/ChangePasswordModal";
 import {
   BookCopy,
   BookOpen,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { FC, SVGProps } from "react";
+import { useState } from "react";
 
 const admins = [
   { id: 1, name: "Group 3", adminId: 1, active: true },
@@ -107,7 +109,11 @@ const Sidebar = () => {
   );
 };
 
-const DashboardHeader = () => (
+const DashboardHeader = ({
+  onSettingsClick,
+}: {
+  onSettingsClick: () => void;
+}) => (
   <div className="flex items-center justify-between">
     <div className="flex items-center gap-3">
       <div className="rounded-lg bg-black p-2">
@@ -123,7 +129,10 @@ const DashboardHeader = () => (
         <p className="font-semibold text-slate-800">12:00 AM</p>
         <p className="text-sm text-slate-500">Sep 27, 2025</p>
       </div>
-      <button className="text-slate-600 hover:text-slate-900">
+      <button
+        onClick={onSettingsClick}
+        className="text-slate-600 hover:text-slate-900"
+      >
         <Settings className="h-7 w-7" />
       </button>
     </div>
@@ -199,11 +208,13 @@ const OverdueBorrowersList = () => (
 );
 
 export default function DashboardPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="flex h-screen bg-[#c8dcdc] font-sans">
       <Sidebar />
       <main className="flex-1 space-y-8 overflow-y-auto p-8">
-        <DashboardHeader />
+        <DashboardHeader onSettingsClick={() => setIsModalOpen(true)} />
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <StatCard icon={User} title="Total User Base" value="150" />
           <StatCard icon={BookCopy} title="Total Book Count" value="1150" />
@@ -213,6 +224,10 @@ export default function DashboardPage() {
           <OverdueBorrowersList />
         </div>
       </main>
+
+      {isModalOpen && (
+        <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
+      )}
     </div>
   );
 }
