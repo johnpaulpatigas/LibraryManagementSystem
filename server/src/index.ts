@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import express from "express";
 import { Pool } from "pg";
 import { createAuthRouter } from "./routes/auth";
+import { createUsersRouter } from "./routes/users";
 
 dotenv.config();
 
@@ -21,7 +22,10 @@ app.use(cors());
 app.use(express.json());
 
 const authRouter = createAuthRouter(pool);
+const usersRouter = createUsersRouter(pool);
+
 app.use("/api/auth", authRouter);
+app.use("/api/users", usersRouter);
 
 app.get("/", (req, res) => {
   res.send("Library API is running!");

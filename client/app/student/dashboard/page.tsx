@@ -1,4 +1,5 @@
 "use client";
+import AuthWrapper from "@/components/AuthWrapper";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
 import {
   Book,
@@ -133,44 +134,48 @@ export default function StudentDashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#c8dcdc] font-sans">
-      <StudentSidebar />
-      <main className="flex flex-1 flex-col gap-12 overflow-y-auto p-8">
-        <StudentHeader onSettingsClick={() => setIsModalOpen(true)} />
+    <AuthWrapper>
+      <div className="flex h-screen bg-[#c8dcdc] font-sans">
+        <StudentSidebar />
+        <main className="flex flex-1 flex-col gap-12 overflow-y-auto p-8">
+          <StudentHeader onSettingsClick={() => setIsModalOpen(true)} />
 
-        <div className="flex flex-1 items-start justify-center gap-12 pt-10">
-          <div className="flex w-full max-w-md flex-col gap-8">
-            <NavCard
-              href="/student/my-books?view=borrowed"
-              icon={BookMarked}
-              title="Your Borrowed Book List"
-            />
-            <NavCard
-              href="/student/my-books?view=returned"
-              icon={Undo2}
-              title="Your Returned Book List"
-            />
-            <NavCard
-              href="/student/browse"
-              icon={MousePointerClick}
-              title="Browse Available Book Inventory"
-            />
+          <div className="flex flex-1 items-start justify-center gap-12 pt-10">
+            <div className="flex w-full max-w-md flex-col gap-8">
+              <NavCard
+                href="/student/my-books?view=borrowed"
+                icon={BookMarked}
+                title="Your Borrowed Book List"
+              />
+              <NavCard
+                href="/student/my-books?view=returned"
+                icon={Undo2}
+                title="Your Returned Book List"
+              />
+              <NavCard
+                href="/student/browse"
+                icon={MousePointerClick}
+                title="Browse Available Book Inventory"
+              />
+            </div>
+
+            <div className="w-full max-w-lg rounded-2xl bg-[#e1e8e8] p-10 shadow-md">
+              <blockquote className="text-center text-xl leading-relaxed text-slate-700 italic">
+                &quot;Embarking on the journey of reading fosters personal
+                growth, nurturing a path towards excellence and the refinement
+                of character&quot;
+              </blockquote>
+              <p className="mt-6 text-right font-medium text-slate-600">
+                — CTTO
+              </p>
+            </div>
           </div>
+        </main>
 
-          <div className="w-full max-w-lg rounded-2xl bg-[#e1e8e8] p-10 shadow-md">
-            <blockquote className="text-center text-xl leading-relaxed text-slate-700 italic">
-              &quot;Embarking on the journey of reading fosters personal growth,
-              nurturing a path towards excellence and the refinement of
-              character&quot;
-            </blockquote>
-            <p className="mt-6 text-right font-medium text-slate-600">— CTTO</p>
-          </div>
-        </div>
-      </main>
-
-      {isModalOpen && (
-        <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
-      )}
-    </div>
+        {isModalOpen && (
+          <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
+        )}
+      </div>
+    </AuthWrapper>
   );
 }

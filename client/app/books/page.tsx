@@ -1,4 +1,5 @@
 "use client";
+import AuthWrapper from "@/components/AuthWrapper";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
 import {
   BookCopy,
@@ -117,79 +118,81 @@ export default function BooksPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#c8dcdc] font-sans">
-      <Sidebar />
-      <main className="flex flex-1 flex-col gap-8 overflow-y-auto p-8">
-        <PageHeader onSettingsClick={() => setIsModalOpen(true)} />
+    <AuthWrapper>
+      <div className="flex h-screen bg-[#c8dcdc] font-sans">
+        <Sidebar />
+        <main className="flex flex-1 flex-col gap-8 overflow-y-auto p-8">
+          <PageHeader onSettingsClick={() => setIsModalOpen(true)} />
 
-        <div className="flex flex-1 flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-3xl font-bold text-slate-800">
-              Book Management
-            </h2>
-            <div className="flex items-center gap-4">
-              <button className="flex items-center gap-2 rounded-lg bg-[#324646] px-4 py-2 text-white transition-colors hover:bg-[#2a3a3a]">
-                <Plus className="h-5 w-5" />
-                Add Book
-              </button>
-              <div className="relative">
-                <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search by ID or Type"
-                  className="rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 focus:ring-2 focus:ring-[#324646] focus:outline-none"
-                />
+          <div className="flex flex-1 flex-col gap-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl font-bold text-slate-800">
+                Book Management
+              </h2>
+              <div className="flex items-center gap-4">
+                <button className="flex items-center gap-2 rounded-lg bg-[#324646] px-4 py-2 text-white transition-colors hover:bg-[#2a3a3a]">
+                  <Plus className="h-5 w-5" />
+                  Add Book
+                </button>
+                <div className="relative">
+                  <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by ID or Type"
+                    className="rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 focus:ring-2 focus:ring-[#324646] focus:outline-none"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex-1 overflow-x-auto rounded-2xl bg-[#e1e8e8] p-6 shadow-sm">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-gray-400">
-                  <th className="p-4 font-semibold">ID</th>
-                  <th className="p-4 font-semibold">User ID</th>
-                  <th className="p-4 font-semibold">Name</th>
-                  <th className="p-4 font-semibold">Language</th>
-                  <th className="p-4 font-semibold">Availability</th>
-                  <th className="p-4 font-semibold">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {books.map((book, index) => (
-                  <tr
-                    key={index}
-                    className="border-b border-gray-300 last:border-b-0"
-                  >
-                    <td className="p-4">{book.id}</td>
-                    <td className="p-4">{book.userId}</td>
-                    <td className="p-4">{book.name}</td>
-                    <td className="p-4">{book.language}</td>
-                    <td className="p-4">{book.availability}</td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <button className="text-slate-600 hover:text-slate-900">
-                          <Pencil className="h-5 w-5" />
-                        </button>
-                        <button className="text-slate-600 hover:text-red-600">
-                          <Trash2 className="h-5 w-5" />
-                        </button>
-                        <button className="text-slate-600 hover:text-slate-900">
-                          <FileText className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </td>
+            <div className="flex-1 overflow-x-auto rounded-2xl bg-[#e1e8e8] p-6 shadow-sm">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-gray-400">
+                    <th className="p-4 font-semibold">ID</th>
+                    <th className="p-4 font-semibold">User ID</th>
+                    <th className="p-4 font-semibold">Name</th>
+                    <th className="p-4 font-semibold">Language</th>
+                    <th className="p-4 font-semibold">Availability</th>
+                    <th className="p-4 font-semibold">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {books.map((book, index) => (
+                    <tr
+                      key={index}
+                      className="border-b border-gray-300 last:border-b-0"
+                    >
+                      <td className="p-4">{book.id}</td>
+                      <td className="p-4">{book.userId}</td>
+                      <td className="p-4">{book.name}</td>
+                      <td className="p-4">{book.language}</td>
+                      <td className="p-4">{book.availability}</td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <button className="text-slate-600 hover:text-slate-900">
+                            <Pencil className="h-5 w-5" />
+                          </button>
+                          <button className="text-slate-600 hover:text-red-600">
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                          <button className="text-slate-600 hover:text-slate-900">
+                            <FileText className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
 
-      {isModalOpen && (
-        <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
-      )}
-    </div>
+        {isModalOpen && (
+          <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
+        )}
+      </div>
+    </AuthWrapper>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import AuthWrapper from "@/components/AuthWrapper";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
 import {
   BookCopy,
@@ -127,105 +128,107 @@ export default function CatalogPage() {
   };
 
   return (
-    <div className="flex h-screen bg-[#c8dcdc] font-sans">
-      <Sidebar />
-      <main className="flex flex-1 flex-col gap-8 overflow-y-auto p-8">
-        <PageHeader onSettingsClick={() => setIsModalOpen(true)} />
+    <AuthWrapper>
+      <div className="flex h-screen bg-[#c8dcdc] font-sans">
+        <Sidebar />
+        <main className="flex flex-1 flex-col gap-8 overflow-y-auto p-8">
+          <PageHeader onSettingsClick={() => setIsModalOpen(true)} />
 
-        <div className="flex flex-1 flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {view === "table" && (
+          <div className="flex flex-1 flex-col gap-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                {view === "table" && (
+                  <button
+                    onClick={handleGoBack}
+                    className="rounded-full p-2 transition-colors hover:bg-gray-300"
+                  >
+                    <ChevronLeft className="h-6 w-6 text-slate-700" />
+                  </button>
+                )}
                 <button
-                  onClick={handleGoBack}
-                  className="rounded-full p-2 transition-colors hover:bg-gray-300"
+                  onClick={() => handleShowTable("borrowed")}
+                  className={`rounded-lg px-6 py-2 font-semibold transition-colors ${
+                    activeTab === "borrowed" && view === "table"
+                      ? "bg-[#324646] text-white"
+                      : "bg-[#d1d9d9] text-slate-700"
+                  }`}
                 >
-                  <ChevronLeft className="h-6 w-6 text-slate-700" />
+                  Borrowed Books
                 </button>
-              )}
-              <button
-                onClick={() => handleShowTable("borrowed")}
-                className={`rounded-lg px-6 py-2 font-semibold transition-colors ${
-                  activeTab === "borrowed" && view === "table"
-                    ? "bg-[#324646] text-white"
-                    : "bg-[#d1d9d9] text-slate-700"
-                }`}
-              >
-                Borrowed Books
-              </button>
-              <button
-                onClick={() => handleShowTable("overdue")}
-                className={`rounded-lg px-6 py-2 font-semibold transition-colors ${
-                  activeTab === "overdue" && view === "table"
-                    ? "bg-[#324646] text-white"
-                    : "bg-[#d1d9d9] text-slate-700"
-                }`}
-              >
-                Overdue Books
-              </button>
-            </div>
-            <div className="relative">
-              <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by ID"
-                className="rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 focus:ring-2 focus:ring-[#324646] focus:outline-none"
-              />
-            </div>
-          </div>
-
-          {view === "initial" ? (
-            <div className="flex flex-1 items-center justify-center p-4">
-              <div className="relative h-full max-h-[60vh] w-full max-w-4xl overflow-hidden rounded-2xl shadow-lg">
-                <Image
-                  src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2070&auto=format&fit=crop"
-                  alt="Bookshelf"
-                  layout="fill"
-                  objectFit="cover"
+                <button
+                  onClick={() => handleShowTable("overdue")}
+                  className={`rounded-lg px-6 py-2 font-semibold transition-colors ${
+                    activeTab === "overdue" && view === "table"
+                      ? "bg-[#324646] text-white"
+                      : "bg-[#d1d9d9] text-slate-700"
+                  }`}
+                >
+                  Overdue Books
+                </button>
+              </div>
+              <div className="relative">
+                <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by ID"
+                  className="rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 focus:ring-2 focus:ring-[#324646] focus:outline-none"
                 />
               </div>
             </div>
-          ) : (
-            <div className="flex-1 overflow-x-auto rounded-2xl bg-[#e1e8e8] p-6 shadow-sm">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b border-gray-400">
-                    <th className="p-4 font-semibold">ID</th>
-                    <th className="p-4 font-semibold">User ID</th>
-                    <th className="p-4 font-semibold">Amount</th>
-                    <th className="p-4 font-semibold">Due Date</th>
-                    <th className="p-4 font-semibold">Date & Time</th>
-                    <th className="p-4 font-semibold">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {borrowedBooksData.map((book, index) => (
-                    <tr
-                      key={index}
-                      className="border-b border-gray-300 last:border-b-0"
-                    >
-                      <td className="p-4">{book.id}</td>
-                      <td className="p-4">{book.userId}</td>
-                      <td className="p-4">{book.amount}</td>
-                      <td className="p-4">{book.dueDate}</td>
-                      <td className="p-4">{book.dateTime}</td>
-                      <td className="p-4">
-                        <button className="text-slate-600 hover:text-slate-900">
-                          <FileText className="h-5 w-5" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </main>
 
-      {isModalOpen && (
-        <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
-      )}
-    </div>
+            {view === "initial" ? (
+              <div className="flex flex-1 items-center justify-center p-4">
+                <div className="relative h-full max-h-[60vh] w-full max-w-4xl overflow-hidden rounded-2xl shadow-lg">
+                  <Image
+                    src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2070&auto=format&fit=crop"
+                    alt="Bookshelf"
+                    layout="fill"
+                    objectFit="cover"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 overflow-x-auto rounded-2xl bg-[#e1e8e8] p-6 shadow-sm">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-gray-400">
+                      <th className="p-4 font-semibold">ID</th>
+                      <th className="p-4 font-semibold">User ID</th>
+                      <th className="p-4 font-semibold">Amount</th>
+                      <th className="p-4 font-semibold">Due Date</th>
+                      <th className="p-4 font-semibold">Date & Time</th>
+                      <th className="p-4 font-semibold">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {borrowedBooksData.map((book, index) => (
+                      <tr
+                        key={index}
+                        className="border-b border-gray-300 last:border-b-0"
+                      >
+                        <td className="p-4">{book.id}</td>
+                        <td className="p-4">{book.userId}</td>
+                        <td className="p-4">{book.amount}</td>
+                        <td className="p-4">{book.dueDate}</td>
+                        <td className="p-4">{book.dateTime}</td>
+                        <td className="p-4">
+                          <button className="text-slate-600 hover:text-slate-900">
+                            <FileText className="h-5 w-5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </main>
+
+        {isModalOpen && (
+          <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
+        )}
+      </div>
+    </AuthWrapper>
   );
 }

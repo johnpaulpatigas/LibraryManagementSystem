@@ -1,4 +1,5 @@
 "use client";
+import AuthWrapper from "@/components/AuthWrapper";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
 import {
   Book,
@@ -193,68 +194,70 @@ export default function BrowseBooksPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#c8dcdc] font-sans">
-      <StudentSidebar />
-      <main className="flex flex-1 flex-col gap-8 overflow-y-auto p-8">
-        <StudentHeader onSettingsClick={() => setIsModalOpen(true)} />
+    <AuthWrapper>
+      <div className="flex h-screen bg-[#c8dcdc] font-sans">
+        <StudentSidebar />
+        <main className="flex flex-1 flex-col gap-8 overflow-y-auto p-8">
+          <StudentHeader onSettingsClick={() => setIsModalOpen(true)} />
 
-        <div className="flex flex-1 flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-3xl font-bold text-slate-800">
-              Library Lane Books
-            </h2>
-            <div className="relative">
-              <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by ID or Type"
-                className="rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 focus:ring-2 focus:ring-[#324646] focus:outline-none"
-              />
+          <div className="flex flex-1 flex-col gap-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl font-bold text-slate-800">
+                Library Lane Books
+              </h2>
+              <div className="relative">
+                <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by ID or Type"
+                  className="rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 focus:ring-2 focus:ring-[#324646] focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-x-auto rounded-2xl bg-[#e1e8e8] p-6 shadow-sm">
+              <table className="w-full table-fixed text-left">
+                <thead>
+                  <tr className="border-b border-gray-400">
+                    <th className="w-[10%] p-4 font-semibold">ID</th>
+                    <th className="w-[20%] p-4 font-semibold">Name</th>
+                    <th className="w-[20%] p-4 font-semibold">Type</th>
+                    <th className="w-[20%] p-4 font-semibold">Language</th>
+                    <th className="w-[15%] p-4 font-semibold">Availability</th>
+                    <th className="w-[15%] p-4 font-semibold">Add to shelf</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {libraryBooks.map((book, index) => (
+                    <tr
+                      key={index}
+                      className="border-b border-gray-300 last:border-b-0"
+                    >
+                      <td className="p-4">{book.id}</td>
+                      <td className="p-4">{book.name}</td>
+                      <td className="p-4">{book.type}</td>
+                      <td className="p-4">{book.language}</td>
+                      <td className="p-4">{book.availability}</td>
+                      <td className="p-4">
+                        {book.availability === "Available" && (
+                          <input
+                            type="checkbox"
+                            className="h-5 w-5 rounded border-gray-400 text-slate-600 focus:ring-slate-500"
+                          />
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
+        </main>
 
-          <div className="flex-1 overflow-x-auto rounded-2xl bg-[#e1e8e8] p-6 shadow-sm">
-            <table className="w-full table-fixed text-left">
-              <thead>
-                <tr className="border-b border-gray-400">
-                  <th className="w-[10%] p-4 font-semibold">ID</th>
-                  <th className="w-[20%] p-4 font-semibold">Name</th>
-                  <th className="w-[20%] p-4 font-semibold">Type</th>
-                  <th className="w-[20%] p-4 font-semibold">Language</th>
-                  <th className="w-[15%] p-4 font-semibold">Availability</th>
-                  <th className="w-[15%] p-4 font-semibold">Add to shelf</th>
-                </tr>
-              </thead>
-              <tbody>
-                {libraryBooks.map((book, index) => (
-                  <tr
-                    key={index}
-                    className="border-b border-gray-300 last:border-b-0"
-                  >
-                    <td className="p-4">{book.id}</td>
-                    <td className="p-4">{book.name}</td>
-                    <td className="p-4">{book.type}</td>
-                    <td className="p-4">{book.language}</td>
-                    <td className="p-4">{book.availability}</td>
-                    <td className="p-4">
-                      {book.availability === "Available" && (
-                        <input
-                          type="checkbox"
-                          className="h-5 w-5 rounded border-gray-400 text-slate-600 focus:ring-slate-500"
-                        />
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </main>
-
-      {isModalOpen && (
-        <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
-      )}
-    </div>
+        {isModalOpen && (
+          <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
+        )}
+      </div>
+    </AuthWrapper>
   );
 }

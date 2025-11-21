@@ -1,4 +1,5 @@
 "use client";
+import AuthWrapper from "@/components/AuthWrapper";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
 import {
   BookCopy,
@@ -211,23 +212,25 @@ export default function DashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#c8dcdc] font-sans">
-      <Sidebar />
-      <main className="flex-1 space-y-8 overflow-y-auto p-8">
-        <DashboardHeader onSettingsClick={() => setIsModalOpen(true)} />
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          <StatCard icon={User} title="Total User Base" value="150" />
-          <StatCard icon={BookCopy} title="Total Book Count" value="1150" />
-        </div>
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          <AdminList />
-          <OverdueBorrowersList />
-        </div>
-      </main>
+    <AuthWrapper>
+      <div className="flex h-screen bg-[#c8dcdc] font-sans">
+        <Sidebar />
+        <main className="flex-1 space-y-8 overflow-y-auto p-8">
+          <DashboardHeader onSettingsClick={() => setIsModalOpen(true)} />
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <StatCard icon={User} title="Total User Base" value="150" />
+            <StatCard icon={BookCopy} title="Total Book Count" value="1150" />
+          </div>
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <AdminList />
+            <OverdueBorrowersList />
+          </div>
+        </main>
 
-      {isModalOpen && (
-        <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
-      )}
-    </div>
+        {isModalOpen && (
+          <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
+        )}
+      </div>
+    </AuthWrapper>
   );
 }
