@@ -1,7 +1,8 @@
 // src/index.ts
+import dotenv from "dotenv";
 import express from "express";
 import { Pool } from "pg";
-import dotenv from "dotenv";
+import { createAuthRouter } from "./routes/auth";
 
 dotenv.config();
 
@@ -16,6 +17,9 @@ const pool = new Pool({
 });
 
 app.use(express.json());
+
+const authRouter = createAuthRouter(pool);
+app.use("/api/auth", authRouter);
 
 app.get("/", (req, res) => {
   res.send("Library API is running!");
