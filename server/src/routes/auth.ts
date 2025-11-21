@@ -8,10 +8,12 @@ export const createAuthRouter = (pool: Pool): Router => {
   const router = Router();
 
   router.post("/register", async (req, res) => {
-    const { name, email, username, password, role = "user" } = req.body;
+    const { fullname, studentid, email, password, role = "user" } = req.body;
 
-    if (!name || !email || !username || !password) {
-      return res.status(400).json({ error: "All fields are required." });
+    if (!fullname || !studentid || !email || !password) {
+      return res.status(400).json({
+        error: "Full name, student ID, email, and password are required.",
+      });
     }
 
     try {
@@ -19,14 +21,15 @@ export const createAuthRouter = (pool: Pool): Router => {
       const passwordHash = await bcrypt.hash(password, salt);
 
       const newUserQuery = `
-                INSERT INTO users (name, email, username, password_hash, role)
-                VALUES ($1, $2, $3, $4, $5)
-                RETURNING id, username, role;
-            `;
+                    INSERT INTO users (fullname, student_id, email, password_hash, role)
+                    VALUES ($1, $2, $3, $4, $5)
+                    RETURNING id, student_id, role;
+                `;
+
       const result = await pool.query(newUserQuery, [
-        name,
+        fullname,
+        studentid,
         email,
-        username,
         passwordHash,
         role,
       ]);
@@ -39,7 +42,7 @@ export const createAuthRouter = (pool: Pool): Router => {
       if (error.code === "23505") {
         return res
           .status(409)
-          .json({ error: "Email or username already exists." });
+          .json({ error: "Student ID or email already exists." });
       }
       console.error(error);
       res.status(500).json({ error: "Server error during registration." });
@@ -47,17 +50,17 @@ export const createAuthRouter = (pool: Pool): Router => {
   });
 
   router.post("/login", async (req, res) => {
-    const { email, password } = req.body;
+    const { studentid, password } = req.body;
 
-    if (!email || !password) {
+    if (!studentid || !password) {
       return res
         .status(400)
-        .json({ error: "Email and password are required." });
+        .json({ error: "Student ID and password are required." });
     }
 
     try {
-      const userQuery = "SELECT * FROM users WHERE email = $1";
-      const result = await pool.query(userQuery, [email]);
+      const userQuery = "SELECT * FROM users WHERE student_id = $1";
+      const result = await pool.query(userQuery, [studentid]);
       const user = result.rows[0];
 
       if (!user) {
@@ -71,7 +74,8 @@ export const createAuthRouter = (pool: Pool): Router => {
 
       const payload = {
         userId: user.id,
-        username: user.username,
+        studentId: user.student_id,
+        fullname: user.fullname,
         role: user.role,
       };
 
@@ -84,7 +88,8 @@ export const createAuthRouter = (pool: Pool): Router => {
         token,
         user: {
           id: user.id,
-          username: user.username,
+          studentId: user.student_id,
+          fullname: user.fullname,
           role: user.role,
         },
       });
