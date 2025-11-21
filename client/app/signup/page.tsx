@@ -135,7 +135,7 @@ export default function SignupPage() {
                       type="text"
                       className="bg-white"
                       placeholder="Enter your Student ID"
-                      maxLength={6}
+                      maxLength={8}
                       {...field}
                     />
                   </FormControl>

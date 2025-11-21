@@ -124,7 +124,7 @@ export default function LoginPage() {
                       type="text"
                       className="bg-white"
                       placeholder="Enter your Student ID"
-                      maxLength={6}
+                      maxLength={8}
                       {...field}
                     />
                   </FormControl>
@@ -171,7 +171,7 @@ export default function LoginPage() {
               )}
             />
 
-            <Link href="/forgotpassword">
+            <Link href="/forgot-password">
               <small className="text-sm leading-none font-medium text-green-700">
                 Forgot Password?
               </small>
