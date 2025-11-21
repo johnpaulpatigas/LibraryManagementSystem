@@ -1,4 +1,5 @@
 // src/index.ts
+import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { Pool } from "pg";
@@ -16,6 +17,7 @@ const pool = new Pool({
   },
 });
 
+app.use(cors());
 app.use(express.json());
 
 const authRouter = createAuthRouter(pool);

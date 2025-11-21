@@ -12,9 +12,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -35,6 +37,8 @@ type LoginFormValues = z.infer<typeof formSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
@@ -44,9 +48,32 @@ export default function LoginPage() {
     },
   });
 
-  const onSubmit = (data: LoginFormValues) => {
-    console.log("Form submitted with:", data);
-    router.push("/home");
+  const onSubmit = async (data: LoginFormValues) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/api/auth/login",
+        data,
+      );
+
+      const { token, user } = response.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      if (user.role === "admin") {
+        router.push("/dashboard");
+      } else {
+        router.push("/student/dashboard");
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.error || "An unexpected error occurred.";
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -71,6 +98,9 @@ export default function LoginPage() {
               Your gateway to knowledge
             </p>
           </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
           <div className="w-full space-y-3">
             <FormField
               control={form.control}
@@ -128,8 +158,9 @@ export default function LoginPage() {
           <Button
             className="cursor-pointer rounded-full bg-blue-700 px-10 text-lg hover:bg-blue-600"
             type="submit"
+            disabled={isLoading}
           >
-            Login
+            {isLoading ? "Logging in..." : "Login"}
           </Button>
           <div className="mt-3 flex w-full justify-center">
             <small className="text-sm leading-none font-medium">

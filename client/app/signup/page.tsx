@@ -16,9 +16,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import axios from "axios";
+import { useState } from "react";
 
 const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters."),
+  fullname: z.string().min(2, "Name must be at least 2 characters."),
   studentid: z
     .string()
     .min(1, "Student ID is required.")
@@ -36,19 +38,42 @@ type SignupFormValues = z.infer<typeof formSchema>;
 
 export default function SignupPage() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      fullname: "",
       studentid: "",
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = (data: SignupFormValues) => {
-    console.log("Signup form submitted successfully!", data);
-    router.push("/home");
+  const onSubmit = async (data: SignupFormValues) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/api/auth/register",
+        data,
+      );
+
+      console.log("Signup successful:", response.data);
+
+      router.push("/");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.error("Signup failed:", err);
+      const errorMessage =
+        err.response?.data?.error ||
+        "An unexpected error occurred. Please try again.";
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -73,10 +98,13 @@ export default function SignupPage() {
               Your journey to knowledge begins here
             </p>
           </div>
+
+          {error && <p className="pb-2 text-sm text-red-600">{error}</p>}
+
           <div className="w-full space-y-3">
             <FormField
               control={form.control}
-              name="name"
+              name="fullname"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-md font-mediumbold">
@@ -157,10 +185,11 @@ export default function SignupPage() {
             />
           </div>
           <Button
-            className="mt-5 cursor-pointer rounded-full bg-blue-700 px-10 text-lg hover:bg-blue-600"
+            className="mt-4 w-full cursor-pointer rounded-full bg-blue-700 px-10 text-lg hover:bg-blue-600"
             type="submit"
+            disabled={isLoading}
           >
-            Sign Up
+            {isLoading ? "Signing Up..." : "Sign Up"}
           </Button>
           <div className="mt-3 flex w-full items-center justify-center gap-2">
             <small className="text-sm leading-none font-medium">
