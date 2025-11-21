@@ -50,7 +50,7 @@ export const createAuthRouter = (pool: Pool): Router => {
   });
 
   router.post("/login", async (req, res) => {
-    const { studentid, password } = req.body;
+    const { studentid, password, rememberMe } = req.body;
 
     if (!studentid || !password) {
       return res
@@ -79,8 +79,10 @@ export const createAuthRouter = (pool: Pool): Router => {
         role: user.role,
       };
 
+      const expiresIn = rememberMe ? "7d" : "1h";
+
       const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
-        expiresIn: "1h",
+        expiresIn,
       });
 
       res.json({

@@ -31,6 +31,7 @@ const formSchema = z.object({
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter.")
     .regex(/[0-9]/, "Password must contain at least one number.")
     .regex(/^\S*$/, "Password must not contain any spaces."),
+  rememberMe: z.boolean().default(false).optional(),
 });
 
 type LoginFormValues = z.infer<typeof formSchema>;
@@ -45,6 +46,7 @@ export default function LoginPage() {
     defaultValues: {
       studentid: "",
       password: "",
+      rememberMe: false,
     },
   });
 
@@ -58,8 +60,16 @@ export default function LoginPage() {
       );
 
       const { token, user } = response.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+
+      if (data.rememberMe) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+      } else {
+        sessionStorage.setItem("token", token);
+        sessionStorage.setItem("user", JSON.stringify(user));
+      }
+
+      console.log("Login successful, remember me:", data.rememberMe);
 
       if (user.role === "admin") {
         router.push("/dashboard");
@@ -144,11 +154,24 @@ export default function LoginPage() {
               )}
             />
           </div>
-          <div className="flex w-full justify-between">
-            <div className="flex items-center gap-2">
-              <Checkbox className="bg-white" id="remember" />
-              <Label htmlFor="remember">Remember Me</Label>
-            </div>
+          <div className="flex w-full items-center justify-between">
+            <FormField
+              control={form.control}
+              name="rememberMe"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-y-0 space-x-2">
+                  <FormControl>
+                    <Checkbox
+                      className="bg-white"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel className="font-normal">Remember Me</FormLabel>
+                </FormItem>
+              )}
+            />
+
             <Link href="/forgotpassword">
               <small className="text-sm leading-none font-medium text-green-700">
                 Forgot Password?
