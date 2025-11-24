@@ -89,7 +89,9 @@ const StatCard = ({
 const WelcomeBanner = () => {
   const [userName, setUserName] = useState("User");
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+    const storedUser =
+      localStorage.getItem("user") || sessionStorage.getItem("user");
+
     if (storedUser) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setUserName(JSON.parse(storedUser).fullname || "User");

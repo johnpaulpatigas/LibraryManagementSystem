@@ -12,7 +12,9 @@ export default function StudentHeader({ title }: { title: string }) {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+    const storedUser =
+      localStorage.getItem("user") || sessionStorage.getItem("user");
+
     if (storedUser) {
       try {
         const userData = JSON.parse(storedUser);
