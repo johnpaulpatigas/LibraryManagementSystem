@@ -1,6 +1,6 @@
 // app/student/invoices/page.tsx
 "use client";
-import AuthWrapper from "@/components/AuthWrapper";
+import AuthGuard from "@/components/AuthGuard";
 import StudentHeader from "@/components/StudentHeader";
 import Link from "next/link";
 
@@ -80,7 +80,7 @@ const Sidebar = () => {
 
 export default function InvoicesPage() {
   return (
-    <AuthWrapper>
+    <AuthGuard isPrivate={true} role="user">
       <div className="flex h-screen bg-[#AEC7C7] font-sans">
         <Sidebar />
         <div className="flex flex-1 flex-col">
@@ -134,6 +134,6 @@ export default function InvoicesPage() {
           </main>
         </div>
       </div>
-    </AuthWrapper>
+    </AuthGuard>
   );
 }

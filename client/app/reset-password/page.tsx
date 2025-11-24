@@ -1,5 +1,6 @@
 // app/reset-password/page.tsx
 "use client";
+import AuthGuard from "@/components/AuthGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
@@ -60,51 +61,53 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-[rgb(50,70,70)]">
-      <form
-        onSubmit={handleSubmit}
-        className="flex w-130 flex-col items-center space-y-4 rounded-3xl bg-[rgb(200,220,220)] p-10 px-15"
-      >
-        <h1 className="text-center text-3xl font-extrabold tracking-tight">
-          Reset Your Password
-        </h1>
-
-        {message && <p className="pt-2 text-sm text-green-700">{message}</p>}
-        {error && <p className="pt-2 text-sm text-red-600">{error}</p>}
-
-        <div className="w-full space-y-4 pt-4">
-          <div>
-            <label htmlFor="password">New Password</label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 bg-white"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="confirmPassword">Confirm New Password</label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="mt-1 bg-white"
-              required
-            />
-          </div>
-        </div>
-
-        <Button
-          className="mt-4 w-full cursor-pointer rounded-full bg-blue-700 px-10 text-lg hover:bg-blue-600"
-          type="submit"
-          disabled={isLoading || !token}
+    <AuthGuard isPrivate={false}>
+      <div className="flex h-screen w-screen items-center justify-center bg-[rgb(50,70,70)]">
+        <form
+          onSubmit={handleSubmit}
+          className="flex w-130 flex-col items-center space-y-4 rounded-3xl bg-[rgb(200,220,220)] p-10 px-15"
         >
-          {isLoading ? "Resetting..." : "Reset Password"}
-        </Button>
-      </form>
-    </div>
+          <h1 className="text-center text-3xl font-extrabold tracking-tight">
+            Reset Your Password
+          </h1>
+
+          {message && <p className="pt-2 text-sm text-green-700">{message}</p>}
+          {error && <p className="pt-2 text-sm text-red-600">{error}</p>}
+
+          <div className="w-full space-y-4 pt-4">
+            <div>
+              <label htmlFor="password">New Password</label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 bg-white"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="confirmPassword">Confirm New Password</label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="mt-1 bg-white"
+                required
+              />
+            </div>
+          </div>
+
+          <Button
+            className="mt-4 w-full cursor-pointer rounded-full bg-blue-700 px-10 text-lg hover:bg-blue-600"
+            type="submit"
+            disabled={isLoading || !token}
+          >
+            {isLoading ? "Resetting..." : "Reset Password"}
+          </Button>
+        </form>
+      </div>
+    </AuthGuard>
   );
 }

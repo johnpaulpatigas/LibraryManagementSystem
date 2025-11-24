@@ -1,5 +1,5 @@
 "use client";
-import AuthWrapper from "@/components/AuthWrapper";
+import AuthGuard from "@/components/AuthGuard";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
 import {
   BookCopy,
@@ -128,7 +128,7 @@ export default function CatalogPage() {
   };
 
   return (
-    <AuthWrapper>
+    <AuthGuard isPrivate={true} role="admin">
       <div className="flex h-screen bg-[#c8dcdc] font-sans">
         <Sidebar />
         <main className="flex flex-1 flex-col gap-8 overflow-y-auto p-8">
@@ -229,6 +229,6 @@ export default function CatalogPage() {
           <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
         )}
       </div>
-    </AuthWrapper>
+    </AuthGuard>
   );
 }

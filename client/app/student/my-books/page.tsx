@@ -1,6 +1,6 @@
 // app/student/my-books/page.tsx
 "use client";
-import AuthWrapper from "@/components/AuthWrapper";
+import AuthGuard from "@/components/AuthGuard";
 import StudentHeader from "@/components/StudentHeader";
 import Image from "next/image";
 import Link from "next/link";
@@ -138,7 +138,7 @@ export default function IssuedBooksPage() {
   });
 
   return (
-    <AuthWrapper>
+    <AuthGuard isPrivate={true} role="user">
       <div className="flex h-screen bg-[#AEC7C7] font-sans">
         <Sidebar />
         <div className="flex flex-1 flex-col">
@@ -172,6 +172,6 @@ export default function IssuedBooksPage() {
           </main>
         </div>
       </div>
-    </AuthWrapper>
+    </AuthGuard>
   );
 }
