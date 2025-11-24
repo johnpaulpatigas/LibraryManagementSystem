@@ -1,8 +1,8 @@
 // components/AuthWrapper.tsx
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { CircleUserRound } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function AuthWrapper({
   children,

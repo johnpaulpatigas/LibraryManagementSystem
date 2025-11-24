@@ -1,42 +1,60 @@
+// app/student/my-books/page.tsx
 "use client";
 import AuthWrapper from "@/components/AuthWrapper";
-import ChangePasswordModal from "@/components/ChangePasswordModal";
-import {
-  Book,
-  BookMarked,
-  ChevronLeft,
-  FileText,
-  LayoutDashboard,
-  LogOut,
-  Search,
-  Settings,
-  User,
-} from "lucide-react";
+import StudentHeader from "@/components/StudentHeader";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-const borrowedBooksData = Array(12).fill({
-  id: "001",
-  userId: "001",
-  amount: "002 Books",
-  dueDate: "18-10-2025",
-  dateTime: "25-09-2025",
-});
-
-const returnedBooksData = Array(12).fill({
-  id: "001",
-  userId: "001",
-  amount: "002 Books",
-  dueDate: "08-10-2025",
-  dateTime: "25-09-2025 10:08 PM",
-});
+const issuedBooks = [
+  {
+    title: "A Midsummer Night's Dream",
+    author: "William Shakespeare",
+    category: "Classics",
+    description: "Shakespeare's intertwined love polygons begin to get...",
+    imageUrl: "https://images.gr-assets.com/books/1327179044l/9749964.jpg",
+    status: "Returned",
+  },
+  {
+    title: "Paradise Lost",
+    author: "John Milton",
+    category: "Poetry",
+    description: "John Milton's Paradise Lost is one of the greatest epic...",
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Paradise_Lost_frontispiece.jpg/800px-Paradise_Lost_frontispiece.jpg",
+    status: "Returned",
+  },
+  {
+    title: "The Pilgrim's Progress",
+    author: "John Bunyan",
+    category: "Christian",
+    description: "This famous story of man's progress through life in...",
+    imageUrl: "https://images.gr-assets.com/books/1388204797l/214936.jpg",
+    status: "On-going",
+  },
+  {
+    title: "Fuente Ovejuna",
+    author: "Lope de Vega, Juan María Marín",
+    category: "Plays",
+    description: "Lope de Vega trazó en Fuente Ovejuna, con magnífi...",
+    imageUrl: "https://images.gr-assets.com/books/1347313042l/1131972.jpg",
+    status: "Overdue",
+  },
+  {
+    title: "Phaedra",
+    author: "Jean Racine, Richard Wilbur",
+    category: "Drama",
+    description: "A brilliant translation of one of the most influential...",
+    imageUrl: "https://images.gr-assets.com/books/1348259163l/57663.jpg",
+    status: "Overdue",
+  },
+];
 
 const LibraryLogo = () => (
-  <div className="flex justify-center py-8">
+  <div className="flex justify-center py-6">
     <svg
-      width="80"
-      height="80"
+      width="60"
+      height="60"
       viewBox="0 0 100 100"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -49,210 +67,110 @@ const LibraryLogo = () => (
   </div>
 );
 
-const StudentSidebar = () => {
+const Sidebar = () => {
   const navItems = [
-    {
-      name: "Dashboard",
-      icon: LayoutDashboard,
-      href: "/student/dashboard",
-      active: false,
-    },
-    {
-      name: "My Lists",
-      icon: BookMarked,
-      href: "/student/my-books",
-      active: true,
-    },
-    {
-      name: "Browse Books",
-      icon: Book,
-      href: "/student/browse",
-      active: false,
-    },
+    { name: "Dashboard", href: "/student/dashboard", active: false },
+    { name: "Browse Books", href: "/student/browse", active: false },
+    { name: "Book Request", href: "/student/book-request", active: false },
+    { name: "Issued Books", href: "/student/my-books", active: true },
+    { name: "Invoices", href: "/student/invoices", active: false },
   ];
-
   return (
-    <aside className="flex w-24 shrink-0 flex-col items-center bg-[#324646] text-gray-200">
+    <aside className="flex w-60 shrink-0 flex-col bg-[#2A4B4B] text-gray-300">
       <LibraryLogo />
-      <nav className="flex w-full flex-1 flex-col items-center space-y-4 px-2">
+      <nav className="flex flex-col text-sm font-medium">
         {navItems.map((item) => (
           <Link
             key={item.name}
             href={item.href}
-            title={item.name}
-            className={`flex h-16 w-16 items-center justify-center rounded-lg transition-colors ${
-              item.active ? "bg-[#c8dcdc] text-black" : "hover:bg-slate-700"
-            }`}
+            className={`px-6 py-3 transition-colors ${item.active ? "bg-[#AEC7C7] font-bold text-black" : "hover:bg-gray-700"}`}
           >
-            <item.icon className="h-7 w-7" />
+            {item.name}
           </Link>
         ))}
       </nav>
-      <div className="p-4">
-        <Link
-          href="/logout"
-          title="Log Out"
-          className="flex h-16 w-16 items-center justify-center rounded-lg transition-colors hover:bg-slate-700"
-        >
-          <LogOut className="h-7 w-7" />
-        </Link>
-      </div>
     </aside>
   );
 };
 
-const StudentHeader = ({
-  onSettingsClick,
-}: {
-  onSettingsClick: () => void;
-}) => (
-  <div className="flex items-center justify-between">
-    <div className="flex items-center gap-4">
-      <User className="h-10 w-10 text-black" />
-      <div>
-        <h1 className="text-lg font-bold text-slate-800">John Doe</h1>
-        <p className="text-sm text-slate-600">User</p>
-      </div>
-    </div>
-    <div className="flex items-center gap-6">
-      <div className="text-right">
-        <p className="font-semibold text-slate-800">12:00 AM</p>
-        <p className="text-sm text-slate-500">Sep 27, 2025</p>
-      </div>
-      <button
-        onClick={onSettingsClick}
-        className="text-slate-600 hover:text-slate-900"
-      >
-        <Settings className="h-7 w-7" />
-      </button>
-    </div>
-  </div>
-);
-
-export default function MyBooksPage() {
-  const [view, setView] = useState("initial");
-  const [activeTab, setActiveTab] = useState("borrowed");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleShowTable = (tab: string) => {
-    setActiveTab(tab);
-    setView("table");
+const BookCard = ({ book }: { book: (typeof issuedBooks)[0] }) => {
+  const statusColors: { [key: string]: string } = {
+    Returned: "text-green-600",
+    "On-going": "text-orange-500",
+    Overdue: "text-red-600",
   };
 
-  const handleGoBack = () => {
-    setView("initial");
-  };
+  return (
+    <div className="overflow-hidden rounded-lg bg-[#EAE8E3] shadow-lg">
+      <div className="relative h-48 w-full">
+        <Image
+          src={book.imageUrl}
+          alt={`Cover of ${book.title}`}
+          layout="fill"
+          objectFit="cover"
+        />
+      </div>
+      <div className="p-4">
+        <p className="text-sm font-semibold text-gray-600">{book.category}</p>
+        <h3 className="mt-1 text-lg font-bold text-gray-800">{book.title}</h3>
+        <p className="text-sm text-gray-600">{book.author}</p>
+        <p className="mt-2 h-10 overflow-hidden text-sm text-gray-700">
+          {book.description}
+        </p>
+        <p className="mt-3 text-sm text-gray-800">
+          Status:{" "}
+          <span className={`font-bold ${statusColors[book.status]}`}>
+            {book.status}
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+};
 
-  const currentData =
-    activeTab === "borrowed" ? borrowedBooksData : returnedBooksData;
+export default function IssuedBooksPage() {
+  const [selectedStatus, setSelectedStatus] = useState("All");
+
+  const statuses = ["All", ...new Set(issuedBooks.map((book) => book.status))];
+
+  const filteredBooks = issuedBooks.filter((book) => {
+    return selectedStatus === "All" || book.status === selectedStatus;
+  });
 
   return (
     <AuthWrapper>
-      <div className="flex h-screen bg-[#c8dcdc] font-sans">
-        <StudentSidebar />
-        <main className="flex flex-1 flex-col gap-8 overflow-y-auto p-8">
-          <StudentHeader onSettingsClick={() => setIsModalOpen(true)} />
-
-          <div className="flex flex-1 flex-col gap-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                {view === "table" && (
-                  <button
-                    onClick={handleGoBack}
-                    className="rounded-full p-2 transition-colors hover:bg-gray-300"
-                  >
-                    <ChevronLeft className="h-6 w-6 text-slate-700" />
-                  </button>
-                )}
-                <button
-                  onClick={() => handleShowTable("borrowed")}
-                  className={`rounded-lg px-6 py-2 font-semibold transition-colors ${
-                    activeTab === "borrowed" && view === "table"
-                      ? "bg-[#324646] text-white"
-                      : "bg-[#d1d9d9] text-slate-700"
-                  }`}
-                >
-                  Borrowed Books
-                </button>
-                <button
-                  onClick={() => handleShowTable("returned")}
-                  className={`rounded-lg px-6 py-2 font-semibold transition-colors ${
-                    activeTab === "returned" && view === "table"
-                      ? "bg-[#324646] text-white"
-                      : "bg-[#d1d9d9] text-slate-700"
-                  }`}
-                >
-                  Returned Books
-                </button>
-              </div>
-              <div className="relative">
-                <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search by ID"
-                  className="rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 focus:ring-2 focus:ring-[#324646] focus:outline-none"
-                />
-              </div>
+      <div className="flex h-screen bg-[#AEC7C7] font-sans">
+        <Sidebar />
+        <div className="flex flex-1 flex-col">
+          <StudentHeader title="Issued Books" />
+          <main className="flex-1 overflow-y-auto p-8">
+            <div className="mb-8 flex items-center justify-start">
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="w-1/4 rounded-lg border border-gray-400 px-4 py-2 shadow-sm focus:ring-2 focus:ring-[#587878] focus:outline-none"
+              >
+                {statuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {view === "initial" ? (
-              <div className="flex flex-1 items-center justify-center p-4">
-                <div className="relative h-full max-h-[60vh] w-full max-w-4xl overflow-hidden rounded-2xl shadow-lg">
-                  <Image
-                    src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2070&auto=format&fit=crop"
-                    alt="Bookshelf"
-                    layout="fill"
-                    objectFit="cover"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="flex-1 overflow-x-auto rounded-2xl bg-[#e1e8e8] p-6 shadow-sm">
-                <table className="w-full table-fixed text-left">
-                  <thead>
-                    <tr className="border-b border-gray-400">
-                      <th className="w-[10%] p-4 font-semibold">ID</th>
-                      <th className="w-[10%] p-4 font-semibold">User ID</th>
-                      <th className="w-[15%] p-4 font-semibold">Amount</th>
-                      <th className="w-[20%] p-4 font-semibold">Due Date</th>
-                      <th className="w-[30%] p-4 font-semibold">Date & Time</th>
-                      <th className="w-[15%] p-4 font-semibold">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentData.map((book, index) => (
-                      <tr
-                        key={index}
-                        className="border-b border-gray-300 last:border-b-0"
-                      >
-                        <td className="truncate p-4">{book.id}</td>
-                        <td className="truncate p-4">{book.userId}</td>
-                        <td className="truncate p-4">{book.amount}</td>
-                        <td className="truncate p-4">{book.dueDate}</td>
-                        <td className="truncate p-4">{book.dateTime}</td>
-                        <td className="p-4">
-                          {activeTab === "borrowed" ? (
-                            <button className="rounded-md bg-[#324646] px-4 py-1.5 text-sm text-white transition-colors hover:bg-[#2a3a3a]">
-                              Return
-                            </button>
-                          ) : (
-                            <button className="text-slate-600 hover:text-slate-900">
-                              <FileText className="h-5 w-5" />
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </main>
-
-        {isModalOpen && (
-          <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
-        )}
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {filteredBooks.length > 0 ? (
+                filteredBooks.map((book) => (
+                  <BookCard key={book.title} book={book} />
+                ))
+              ) : (
+                <p className="col-span-full text-center text-gray-600">
+                  No books match the selected status.
+                </p>
+              )}
+            </div>
+          </main>
+        </div>
       </div>
     </AuthWrapper>
   );
