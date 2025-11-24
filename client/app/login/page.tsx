@@ -1,4 +1,5 @@
 "use client";
+import AuthGuard from "@/components/AuthGuard";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -86,114 +87,116 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-[rgb(50,70,70)]">
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-130 flex-col items-center space-y-3 rounded-3xl bg-[rgb(200,220,220)] p-10 px-15"
-        >
-          <div className="mb-10 flex flex-col items-center">
-            <Image
-              className="mb-3"
-              src="/globe.svg"
-              alt="logo"
-              width={60}
-              height={60}
-            />
-            <h1 className="text-center text-3xl font-extrabold tracking-tight">
-              Login
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              Your gateway to knowledge
-            </p>
-          </div>
-
-          {error && <p className="text-sm text-red-600">{error}</p>}
-
-          <div className="w-full space-y-3">
-            <FormField
-              control={form.control}
-              name="studentid"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-md font-mediumbold">
-                    Student ID
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      className="bg-white"
-                      placeholder="Enter your Student ID"
-                      maxLength={8}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-md font-mediumbold">
-                    Password
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      className="bg-white"
-                      placeholder="Enter your password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="flex w-full items-center justify-between">
-            <FormField
-              control={form.control}
-              name="rememberMe"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-y-0 space-x-2">
-                  <FormControl>
-                    <Checkbox
-                      className="bg-white"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel className="font-normal">Remember Me</FormLabel>
-                </FormItem>
-              )}
-            />
-
-            <Link href="/forgot-password">
-              <small className="text-sm leading-none font-medium text-green-700">
-                Forgot Password?
-              </small>
-            </Link>
-          </div>
-          <Button
-            className="cursor-pointer rounded-full bg-blue-700 px-10 text-lg hover:bg-blue-600"
-            type="submit"
-            disabled={isLoading}
+    <AuthGuard isPrivate={false}>
+      <div className="flex h-screen w-screen items-center justify-center bg-[rgb(50,70,70)]">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex w-130 flex-col items-center space-y-3 rounded-3xl bg-[rgb(200,220,220)] p-10 px-15"
           >
-            {isLoading ? "Logging in..." : "Login"}
-          </Button>
-          <div className="mt-3 flex w-full justify-center">
-            <small className="text-sm leading-none font-medium">
-              {"Don't have an account?"}{" "}
-              <Link className="text-green-700" href="/signup">
-                Sign up
+            <div className="mb-10 flex flex-col items-center">
+              <Image
+                className="mb-3"
+                src="/globe.svg"
+                alt="logo"
+                width={60}
+                height={60}
+              />
+              <h1 className="text-center text-3xl font-extrabold tracking-tight">
+                Login
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                Your gateway to knowledge
+              </p>
+            </div>
+
+            {error && <p className="text-sm text-red-600">{error}</p>}
+
+            <div className="w-full space-y-3">
+              <FormField
+                control={form.control}
+                name="studentid"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-md font-mediumbold">
+                      Student ID
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        className="bg-white"
+                        placeholder="Enter your Student ID"
+                        maxLength={8}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-md font-mediumbold">
+                      Password
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        className="bg-white"
+                        placeholder="Enter your password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex w-full items-center justify-between">
+              <FormField
+                control={form.control}
+                name="rememberMe"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-y-0 space-x-2">
+                    <FormControl>
+                      <Checkbox
+                        className="bg-white"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal">Remember Me</FormLabel>
+                  </FormItem>
+                )}
+              />
+
+              <Link href="/forgot-password">
+                <small className="text-sm leading-none font-medium text-green-700">
+                  Forgot Password?
+                </small>
               </Link>
-            </small>
-          </div>
-        </form>
-      </Form>
-    </div>
+            </div>
+            <Button
+              className="cursor-pointer rounded-full bg-blue-700 px-10 text-lg hover:bg-blue-600"
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? "Logging in..." : "Login"}
+            </Button>
+            <div className="mt-3 flex w-full justify-center">
+              <small className="text-sm leading-none font-medium">
+                {"Don't have an account?"}{" "}
+                <Link className="text-green-700" href="/signup">
+                  Sign up
+                </Link>
+              </small>
+            </div>
+          </form>
+        </Form>
+      </div>
+    </AuthGuard>
   );
 }

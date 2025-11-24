@@ -1,6 +1,6 @@
 // app/student/dashboard/page.tsx
 "use client";
-import AuthWrapper from "@/components/AuthWrapper";
+import AuthGuard from "@/components/AuthGuard";
 import StudentHeader from "@/components/StudentHeader";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -105,7 +105,7 @@ const WelcomeBanner = () => {
 
 export default function StudentDashboardPage() {
   return (
-    <AuthWrapper>
+    <AuthGuard isPrivate={true} role="user">
       <div className="flex h-screen bg-[#AEC7C7] font-sans">
         <Sidebar />
         <div className="flex flex-1 flex-col">
@@ -141,6 +141,6 @@ export default function StudentDashboardPage() {
           </main>
         </div>
       </div>
-    </AuthWrapper>
+    </AuthGuard>
   );
 }

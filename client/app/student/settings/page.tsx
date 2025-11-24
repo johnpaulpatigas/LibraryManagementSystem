@@ -1,6 +1,6 @@
 // app/student/settings/page.tsx
 "use client";
-import AuthWrapper from "@/components/AuthWrapper";
+import AuthGuard from "@/components/AuthGuard";
 import StudentHeader from "@/components/StudentHeader";
 import Link from "next/link";
 import { useState } from "react";
@@ -76,7 +76,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <AuthWrapper>
+    <AuthGuard isPrivate={true} role="user">
       <div className="flex h-screen bg-[#AEC7C7] font-sans">
         <Sidebar />
         <div className="flex flex-1 flex-col">
@@ -159,6 +159,6 @@ export default function SettingsPage() {
           </main>
         </div>
       </div>
-    </AuthWrapper>
+    </AuthGuard>
   );
 }
