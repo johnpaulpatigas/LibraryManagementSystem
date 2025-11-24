@@ -1,4 +1,4 @@
-// app/student/browse/page.tsx
+// app/student/book-request/page.tsx
 "use client";
 import AuthWrapper from "@/components/AuthWrapper";
 import StudentHeader from "@/components/StudentHeader";
@@ -6,49 +6,49 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-const allBooks = [
+const requestedBooks = [
   {
     title: "A Midsummer Night's Dream",
     author: "William Shakespeare",
     category: "Classics",
-    description: "Shakespeare's intertwined love polygons begin to get...",
     imageUrl: "https://images.gr-assets.com/books/1327179044l/9749964.jpg",
+    status: "Approved",
   },
   {
     title: "Paradise Lost",
     author: "John Milton",
     category: "Poetry",
-    description: "John Milton's Paradise Lost is one of the greatest epic...",
     imageUrl:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Paradise_Lost_frontispiece.jpg/800px-Paradise_Lost_frontispiece.jpg",
+    status: "Approved",
   },
   {
     title: "The Imaginary Invalid",
     author: "Molière",
     category: "Classics",
-    description: "To reduce his medical fees, hypochondriac M. Argan...",
     imageUrl: "https://images.gr-assets.com/books/1426101967l/25131499.jpg",
+    status: "Rejected",
   },
   {
     title: "The Pilgrim's Progress",
     author: "John Bunyan",
     category: "Christian",
-    description: "This famous story of man's progress through life in...",
     imageUrl: "https://images.gr-assets.com/books/1388204797l/214936.jpg",
+    status: "Pending",
   },
   {
     title: "Fuente Ovejuna",
     author: "Lope de Vega, Juan María Marín",
     category: "Plays",
-    description: "Lope de Vega trazó en Fuente Ovejuna, con magnífi...",
     imageUrl: "https://images.gr-assets.com/books/1347313042l/1131972.jpg",
+    status: "Approved",
   },
   {
     title: "Phaedra",
     author: "Jean Racine, Richard Wilbur",
     category: "Drama",
-    description: "A brilliant translation of one of the most influential...",
     imageUrl: "https://images.gr-assets.com/books/1348259163l/57663.jpg",
+    status: "Approved",
   },
 ];
 
@@ -72,8 +72,8 @@ const LibraryLogo = () => (
 const Sidebar = () => {
   const navItems = [
     { name: "Dashboard", href: "/student/dashboard", active: false },
-    { name: "Browse Books", href: "/student/browse", active: true },
-    { name: "Book Request", href: "/student/book-request", active: false },
+    { name: "Browse Books", href: "/student/browse", active: false },
+    { name: "Book Request", href: "/student/book-request", active: true },
     { name: "Issued Books", href: "/student/my-books", active: false },
     { name: "Invoices", href: "/student/invoices", active: false },
   ];
@@ -95,7 +95,26 @@ const Sidebar = () => {
   );
 };
 
-const BookCard = ({ book }: { book: (typeof allBooks)[0] }) => {
+const StatusBadge = ({
+  status,
+}: {
+  status: "Approved" | "Pending" | "Rejected";
+}) => {
+  const statusStyles = {
+    Approved: "bg-green-500 text-white",
+    Pending: "bg-orange-400 text-white",
+    Rejected: "bg-red-500 text-white",
+  };
+  return (
+    <span
+      className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[status]}`}
+    >
+      {status}
+    </span>
+  );
+};
+
+const BookCard = ({ book }: { book: (typeof requestedBooks)[0] }) => {
   const categoryColors: { [key: string]: string } = {
     Classics: "text-green-700",
     Poetry: "text-blue-700",
@@ -105,7 +124,7 @@ const BookCard = ({ book }: { book: (typeof allBooks)[0] }) => {
   };
 
   return (
-    <div className="transform overflow-hidden rounded-lg bg-[#EAE8E3] shadow-lg transition-transform duration-300 hover:-translate-y-1">
+    <div className="overflow-hidden rounded-lg bg-[#EAE8E3] shadow-lg">
       <div className="relative h-48 w-full">
         <Image
           src={book.imageUrl}
@@ -121,28 +140,25 @@ const BookCard = ({ book }: { book: (typeof allBooks)[0] }) => {
           {book.category}
         </p>
         <h3 className="mt-1 text-lg font-bold text-gray-800">{book.title}</h3>
-        <p className="text-sm text-gray-600">{book.author}</p>
-        <p className="mt-2 h-10 overflow-hidden text-sm text-gray-700">
-          {book.description}
-        </p>
+        <p className="mb-3 text-sm text-gray-600">{book.author}</p>
+        <StatusBadge
+          status={book.status as "Approved" | "Pending" | "Rejected"}
+        />
       </div>
     </div>
   );
 };
 
-export default function BrowseBooksPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+export default function BookRequestPage() {
+  const [selectedStatus, setSelectedStatus] = useState("All");
 
-  const categories = ["All", ...new Set(allBooks.map((book) => book.category))];
+  const statuses = [
+    "All",
+    ...new Set(requestedBooks.map((book) => book.status)),
+  ];
 
-  const filteredBooks = allBooks.filter((book) => {
-    const matchesCategory =
-      selectedCategory === "All" || book.category === selectedCategory;
-    const matchesSearch =
-      book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
+  const filteredBooks = requestedBooks.filter((book) => {
+    return selectedStatus === "All" || book.status === selectedStatus;
   });
 
   return (
@@ -150,24 +166,17 @@ export default function BrowseBooksPage() {
       <div className="flex h-screen bg-[#AEC7C7] font-sans">
         <Sidebar />
         <div className="flex flex-1 flex-col">
-          <StudentHeader title="Browse Books" />
+          <StudentHeader title="Book Request" />
           <main className="flex-1 overflow-y-auto p-8">
-            <div className="mb-8 flex items-center justify-between">
-              <input
-                type="text"
-                placeholder="Search Book"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-1/3 rounded-lg border border-gray-400 px-4 py-2 shadow-sm focus:ring-2 focus:ring-[#587878] focus:outline-none"
-              />
+            <div className="mb-8 flex items-center justify-start">
               <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="rounded-lg border border-gray-400 px-4 py-2 shadow-sm focus:ring-2 focus:ring-[#587878] focus:outline-none"
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="w-1/4 rounded-lg border border-gray-400 px-4 py-2 shadow-sm focus:ring-2 focus:ring-[#587878] focus:outline-none"
               >
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
+                {statuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
                   </option>
                 ))}
               </select>
