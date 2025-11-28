@@ -1,6 +1,6 @@
 // app/forgot-password/page.tsx
 "use client";
-import AuthGuard from "@/components/AuthGuard";
+import AuthLayout from "@/components/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
@@ -34,50 +34,41 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <AuthGuard isPrivate={false}>
-      <div className="flex h-screen w-screen items-center justify-center bg-[rgb(50,70,70)]">
-        <form
-          onSubmit={handleSubmit}
-          className="flex w-130 flex-col items-center space-y-4 rounded-3xl bg-[rgb(200,220,220)] p-10 px-15"
+    <AuthLayout
+      title="Forgot Password"
+      subtitle="Enter your email to receive a password reset link."
+    >
+      <form onSubmit={handleSubmit} className="w-full space-y-4">
+        {message && <p className="pt-2 text-sm text-green-700">{message}</p>}
+        {error && <p className="pt-2 text-sm text-red-600">{error}</p>}
+
+        <div className="w-full pt-4">
+          <label htmlFor="email" className="text-md font-medium">
+            Email Address
+          </label>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="mt-1 bg-white"
+            placeholder="you@example.com"
+            required
+          />
+        </div>
+
+        <Button
+          className="mt-4 w-full cursor-pointer rounded-full bg-blue-700 px-10 text-lg hover:bg-blue-600"
+          type="submit"
+          disabled={isLoading}
         >
-          <h1 className="text-center text-3xl font-extrabold tracking-tight">
-            Forgot Password
-          </h1>
-          <p className="text-muted-foreground text-center text-sm">
-            Enter your email to receive a password reset link.
-          </p>
+          {isLoading ? "Sending..." : "Send Reset Link"}
+        </Button>
 
-          {message && <p className="pt-2 text-sm text-green-700">{message}</p>}
-          {error && <p className="pt-2 text-sm text-red-600">{error}</p>}
-
-          <div className="w-full pt-4">
-            <label htmlFor="email" className="text-md font-medium">
-              Email Address
-            </label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 bg-white"
-              placeholder="you@example.com"
-              required
-            />
-          </div>
-
-          <Button
-            className="mt-4 w-full cursor-pointer rounded-full bg-blue-700 px-10 text-lg hover:bg-blue-600"
-            type="submit"
-            disabled={isLoading}
-          >
-            {isLoading ? "Sending..." : "Send Reset Link"}
-          </Button>
-
-          <Link className="text-sm text-green-700 hover:underline" href="/">
-            Back to Login
-          </Link>
-        </form>
-      </div>
-    </AuthGuard>
+        <Link className="text-sm text-green-700 hover:underline" href="/">
+          Back to Login
+        </Link>
+      </form>
+    </AuthLayout>
   );
 }

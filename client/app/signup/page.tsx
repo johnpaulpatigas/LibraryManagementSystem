@@ -1,5 +1,5 @@
 "use client";
-import AuthGuard from "@/components/AuthGuard";
+import AuthLayout from "@/components/AuthLayout";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { MoveLeft } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -78,135 +77,120 @@ export default function SignupPage() {
   };
 
   return (
-    <AuthGuard isPrivate={false}>
-      <div className="flex h-screen w-screen items-center justify-center bg-[rgb(50,70,70)]">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex w-130 flex-col items-center space-y-3 rounded-3xl bg-[rgb(200,220,220)] p-10 px-15"
+    <AuthLayout
+      title="User Sign Up"
+      subtitle="Your journey to knowledge begins here"
+    >
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-full space-y-3"
+        >
+          {error && <p className="pb-2 text-sm text-red-600">{error}</p>}
+
+          <div className="w-full space-y-3">
+            <FormField
+              control={form.control}
+              name="fullname"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-md font-mediumbold">
+                    Name
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      className="bg-white"
+                      placeholder="Enter your full name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="studentid"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-md font-mediumbold">
+                    Student ID
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      className="bg-white"
+                      placeholder="Enter your Student ID"
+                      maxLength={8}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-md font-mediumbold">
+                    Email
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      className="bg-white"
+                      placeholder="Enter your email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-md font-mediumbold">
+                    Password
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      className="bg-white"
+                      placeholder="Enter your password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <Button
+            className="mt-4 w-full cursor-pointer rounded-full bg-blue-700 px-10 text-lg hover:bg-blue-600"
+            type="submit"
+            disabled={isLoading}
           >
-            <div className="mb-10 flex flex-col items-center">
-              <Image
-                className="mb-3"
-                src="/globe.svg"
-                alt="logo"
-                width={60}
-                height={60}
-              />
-              <h1 className="text-center text-3xl font-extrabold tracking-tight">
-                User Sign Up
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                Your journey to knowledge begins here
-              </p>
-            </div>
-
-            {error && <p className="pb-2 text-sm text-red-600">{error}</p>}
-
-            <div className="w-full space-y-3">
-              <FormField
-                control={form.control}
-                name="fullname"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-md font-mediumbold">
-                      Name
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        className="bg-white"
-                        placeholder="Enter your full name"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="studentid"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-md font-mediumbold">
-                      Student ID
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        className="bg-white"
-                        placeholder="Enter your Student ID"
-                        maxLength={8}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-md font-mediumbold">
-                      Email
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        className="bg-white"
-                        placeholder="Enter your email"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-md font-mediumbold">
-                      Password
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        className="bg-white"
-                        placeholder="Enter your password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <Button
-              className="mt-4 w-full cursor-pointer rounded-full bg-blue-700 px-10 text-lg hover:bg-blue-600"
-              type="submit"
-              disabled={isLoading}
-            >
-              {isLoading ? "Signing Up..." : "Sign Up"}
-            </Button>
-            <div className="mt-3 flex w-full items-center justify-center gap-2">
-              <small className="text-sm leading-none font-medium">
-                <Link
-                  className="flex items-center justify-center gap-2 text-green-700"
-                  href="/login"
-                >
-                  <MoveLeft color="#3c9d2f" size={10} strokeWidth={3} />
-                  Back to Login
-                </Link>
-              </small>
-            </div>
-          </form>
-        </Form>
-      </div>
-    </AuthGuard>
+            {isLoading ? "Signing Up..." : "Sign Up"}
+          </Button>
+          <div className="mt-3 flex w-full items-center justify-center gap-2">
+            <small className="text-sm leading-none font-medium">
+              <Link
+                className="flex items-center justify-center gap-2 text-green-700"
+                href="/login"
+              >
+                <MoveLeft color="#3c9d2f" size={10} strokeWidth={3} />
+                Back to Login
+              </Link>
+            </small>
+          </div>
+        </form>
+      </Form>
+    </AuthLayout>
   );
 }

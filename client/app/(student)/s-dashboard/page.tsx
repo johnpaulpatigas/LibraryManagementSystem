@@ -1,57 +1,7 @@
 // app/(student)/dashboard/page.tsx
 "use client";
-import AuthGuard from "@/components/AuthGuard";
-import StudentHeader from "@/components/StudentHeader";
-import Link from "next/link";
+import StudentLayout from "@/components/StudentLayout";
 import { useEffect, useState } from "react";
-
-const LibraryLogo = () => (
-  <div className="flex justify-center py-6">
-    <svg
-      width="60"
-      height="60"
-      viewBox="0 0 100 100"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <circle cx="50" cy="20" r="15" fill="#6EC67B" />
-      <path
-        d="M10 95 C 20 70, 40 60, 50 60 C 60 60, 80 70, 90 95 L 90 30 C 90 30, 50 10, 50 10 C 50 10, 10 30, 10 30 Z"
-        fill="#6EC67B"
-      />
-    </svg>
-  </div>
-);
-
-const Sidebar = () => {
-  const navItems = [
-    { name: "Dashboard", href: "/s-dashboard", active: true },
-    { name: "Browse Books", href: "/browse", active: false },
-    { name: "Book Request", href: "/s-book-request", active: false },
-    { name: "Issued Books", href: "/my-books", active: false },
-    { name: "Invoices", href: "/invoices", active: false },
-  ];
-
-  return (
-    <aside className="flex w-60 shrink-0 flex-col bg-[#2A4B4B] text-gray-300">
-      <LibraryLogo />
-      <nav className="flex flex-col text-sm font-medium">
-        {navItems.map((item) => (
-          <Link
-            key={item.name}
-            href={item.href}
-            className={`px-6 py-3 transition-colors ${
-              item.active
-                ? "bg-[#AEC7C7] font-bold text-black"
-                : "hover:bg-gray-700"
-            }`}
-          >
-            {item.name}
-          </Link>
-        ))}
-      </nav>
-    </aside>
-  );
-};
 
 type StatItemProps = {
   label: string;
@@ -107,42 +57,34 @@ const WelcomeBanner = () => {
 
 export default function StudentDashboardPage() {
   return (
-    <AuthGuard isPrivate={true} role="user">
-      <div className="flex h-screen bg-[#AEC7C7] font-sans">
-        <Sidebar />
-        <div className="flex flex-1 flex-col">
-          <StudentHeader title="Dashboard" />
-          <main className="flex-1 space-y-8 overflow-y-auto p-8">
-            <WelcomeBanner />
+    <StudentLayout activePage="Dashboard" headerTitle="Dashboard">
+      <WelcomeBanner />
 
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-              <StatCard title="Books">
-                <StatItem label="Total:" value={0} color="orange" />
-                <StatItem label="Available:" value={0} color="green" />
-                <StatItem label="Inactive:" value={0} color="red" />
-              </StatCard>
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <StatCard title="Books">
+          <StatItem label="Total:" value={0} color="orange" />
+          <StatItem label="Available:" value={0} color="green" />
+          <StatItem label="Inactive:" value={0} color="red" />
+        </StatCard>
 
-              <StatCard title="Issued-Books">
-                <StatItem label="On-going:" value={0} color="orange" />
-                <StatItem label="Returned:" value={0} color="green" />
-                <StatItem label="Overdue:" value={0} color="red" />
-              </StatCard>
+        <StatCard title="Issued-Books">
+          <StatItem label="On-going:" value={0} color="orange" />
+          <StatItem label="Returned:" value={0} color="green" />
+          <StatItem label="Overdue:" value={0} color="red" />
+        </StatCard>
 
-              <StatCard title="Book Request">
-                <StatItem label="Approved:" value={0} color="green" />
-                <StatItem label="Pending:" value={0} color="orange" />
-                <StatItem label="Rejected:" value={0} color="red" />
-              </StatCard>
+        <StatCard title="Book Request">
+          <StatItem label="Approved:" value={0} color="green" />
+          <StatItem label="Pending:" value={0} color="orange" />
+          <StatItem label="Rejected:" value={0} color="red" />
+        </StatCard>
 
-              <StatCard title="Invoice">
-                <StatItem label="Over-the-counter:" value={0} color="orange" />
-                <StatItem label="Paid:" value={0} color="green" />
-                <StatItem label="Unpaid:" value={0} color="red" />
-              </StatCard>
-            </div>
-          </main>
-        </div>
+        <StatCard title="Invoice">
+          <StatItem label="Over-the-counter:" value={0} color="orange" />
+          <StatItem label="Paid:" value={0} color="green" />
+          <StatItem label="Unpaid:" value={0} color="red" />
+        </StatCard>
       </div>
-    </AuthGuard>
+    </StudentLayout>
   );
 }
