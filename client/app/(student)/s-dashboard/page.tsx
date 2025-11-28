@@ -1,4 +1,4 @@
-// app/student/dashboard/page.tsx
+// app/(student)/dashboard/page.tsx
 "use client";
 import AuthGuard from "@/components/AuthGuard";
 import StudentHeader from "@/components/StudentHeader";
@@ -24,11 +24,11 @@ const LibraryLogo = () => (
 
 const Sidebar = () => {
   const navItems = [
-    { name: "Dashboard", href: "/student/dashboard", active: true },
-    { name: "Browse Books", href: "/student/browse", active: false },
-    { name: "Book Request", href: "/student/book-request", active: false },
-    { name: "Issued Books", href: "/student/my-books", active: false },
-    { name: "Invoices", href: "/student/invoices", active: false },
+    { name: "Dashboard", href: "/s-dashboard", active: true },
+    { name: "Browse Books", href: "/browse", active: false },
+    { name: "Book Request", href: "/s-book-request", active: false },
+    { name: "Issued Books", href: "/my-books", active: false },
+    { name: "Invoices", href: "/invoices", active: false },
   ];
 
   return (
