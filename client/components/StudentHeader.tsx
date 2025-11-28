@@ -69,7 +69,7 @@ export default function StudentHeader({ title }: { title: string }) {
           <div className="absolute right-0 z-20 mt-2 w-48 rounded-md bg-[#AEC7C7] shadow-xl">
             <div className="py-1">
               <Link
-                href="/student/settings"
+                href="/settings"
                 className="block px-4 py-2 text-sm text-gray-800 hover:bg-[#587878] hover:text-white"
                 onClick={() => setIsDropdownOpen(false)}
               >

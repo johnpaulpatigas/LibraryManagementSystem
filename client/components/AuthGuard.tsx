@@ -53,7 +53,7 @@ export default function AuthGuard({
           userRole === "admin" ? "/a-dashboard" : "/s-dashboard";
         router.push(dashboardUrl);
       }
-    } catch (error) {
+    } catch {
       localStorage.clear();
       sessionStorage.clear();
       if (isPrivate) {
