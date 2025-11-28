@@ -2,6 +2,11 @@
 "use client";
 import StudentLayout from "@/components/StudentLayout";
 import { useEffect, useState } from "react";
+import { getProfile } from "@/lib/services/auth";
+import { getBooks } from "@/lib/services/books";
+import { getIssuedBooks } from "@/lib/services/issued_books";
+import { getBookRequests } from "@/lib/services/book_requests";
+import { getInvoices } from "@/lib/services/invoices";
 
 type StatItemProps = {
   label: string;
@@ -36,18 +41,7 @@ const StatCard = ({
   </div>
 );
 
-const WelcomeBanner = () => {
-  const [userName, setUserName] = useState("User");
-  useEffect(() => {
-    const storedUser =
-      localStorage.getItem("user") || sessionStorage.getItem("user");
-
-    if (storedUser) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUserName(JSON.parse(storedUser).fullname || "User");
-    }
-  }, []);
-
+const WelcomeBanner = ({ userName }: { userName: string }) => {
   return (
     <div className="rounded-lg bg-[#FDFBF6] p-4 shadow">
       <h1 className="text-2xl text-gray-800">Hey there! {userName}</h1>
@@ -56,33 +50,129 @@ const WelcomeBanner = () => {
 };
 
 export default function StudentDashboardPage() {
+  const [userName, setUserName] = useState("User");
+  const [stats, setStats] = useState({
+    books: { total: 0, available: 0, inactive: 0 },
+    issuedBooks: { ongoing: 0, returned: 0, overdue: 0 },
+    bookRequests: { approved: 0, pending: 0, rejected: 0 },
+    invoices: { paid: 0, unpaid: 0 },
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [
+          profileRes,
+          booksRes,
+          issuedBooksRes,
+          bookRequestsRes,
+          invoicesRes,
+        ] = await Promise.all([
+          getProfile(),
+          getBooks(),
+          getIssuedBooks(),
+          getBookRequests(),
+          getInvoices(),
+        ]);
+
+        setUserName(profileRes.data.fullname || "User");
+
+        const books = booksRes.data;
+        const issuedBooks = issuedBooksRes.data;
+        const bookRequests = bookRequestsRes.data;
+        const invoices = invoicesRes.data;
+
+        setStats({
+          books: {
+            total: books.length,
+            available: books.filter((b: any) => b.available_quantity > 0).length,
+            inactive: books.filter((b: any) => b.available_quantity === 0).length,
+          },
+          issuedBooks: {
+            ongoing: issuedBooks.filter((ib: any) => ib.issued_status === "issued").length,
+                        returned: issuedBooks.filter((ib: any) => ib.issued_status === "returned").length,
+                        overdue: issuedBooks.filter((ib: any) => ib.issued_status === "overdue").length,
+          },
+          bookRequests: {
+                        approved: bookRequests.filter((br: any) => br.status === "approved").length,
+                                    pending: bookRequests.filter((br: any) => br.status === "pending").length,
+                                    rejected: bookRequests.filter((br: any) => br.status === "rejected").length,
+          },
+          invoices: {
+            paid: invoices.filter((i: any) => i.status === "paid").length,
+            unpaid: invoices.filter((i: any) => i.status !== "paid").length,
+          },
+        });
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <StudentLayout activePage="Dashboard" headerTitle="Dashboard">
-      <WelcomeBanner />
+      <WelcomeBanner userName={userName} />
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <StatCard title="Books">
-          <StatItem label="Total:" value={0} color="orange" />
-          <StatItem label="Available:" value={0} color="green" />
-          <StatItem label="Inactive:" value={0} color="red" />
+          <StatItem label="Total:" value={stats.books.total} color="orange" />
+          <StatItem
+            label="Available:"
+            value={stats.books.available}
+            color="green"
+          />
+          <StatItem
+            label="Inactive:"
+            value={stats.books.inactive}
+            color="red"
+          />
         </StatCard>
 
         <StatCard title="Issued-Books">
-          <StatItem label="On-going:" value={0} color="orange" />
-          <StatItem label="Returned:" value={0} color="green" />
-          <StatItem label="Overdue:" value={0} color="red" />
+          <StatItem
+            label="On-going:"
+            value={stats.issuedBooks.ongoing}
+            color="orange"
+          />
+          <StatItem
+            label="Returned:"
+            value={stats.issuedBooks.returned}
+            color="green"
+          />
+          <StatItem
+            label="Overdue:"
+            value={stats.issuedBooks.overdue}
+            color="red"
+          />
         </StatCard>
 
         <StatCard title="Book Request">
-          <StatItem label="Approved:" value={0} color="green" />
-          <StatItem label="Pending:" value={0} color="orange" />
-          <StatItem label="Rejected:" value={0} color="red" />
+          <StatItem
+            label="Approved:"
+            value={stats.bookRequests.approved}
+            color="green"
+          />
+          <StatItem
+            label="Pending:"
+            value={stats.bookRequests.pending}
+            color="orange"
+          />
+          <StatItem
+            label="Rejected:"
+            value={stats.bookRequests.rejected}
+            color="red"
+          />
         </StatCard>
 
         <StatCard title="Invoice">
-          <StatItem label="Over-the-counter:" value={0} color="orange" />
-          <StatItem label="Paid:" value={0} color="green" />
-          <StatItem label="Unpaid:" value={0} color="red" />
+          <StatItem label="Paid:" value={stats.invoices.paid} color="green" />
+          <StatItem
+            label="Unpaid:"
+            value={stats.invoices.unpaid}
+            color="red"
+          />
         </StatCard>
       </div>
     </StudentLayout>

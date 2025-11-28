@@ -2,94 +2,84 @@
 "use client";
 import StudentLayout from "@/components/StudentLayout";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getIssuedBooks } from "@/lib/services/issued_books";
 
-const issuedBooks = [
-  {
-    title: "A Midsummer Night's Dream",
-    author: "William Shakespeare",
-    category: "Classics",
-    description: "Shakespeare's intertwined love polygons begin to get...",
-    imageUrl: "https://images.gr-assets.com/books/1327179044l/9749964.jpg",
-    status: "Returned",
-  },
-  {
-    title: "Paradise Lost",
-    author: "John Milton",
-    category: "Poetry",
-    description: "John Milton's Paradise Lost is one of the greatest epic...",
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Paradise_Lost_frontispiece.jpg/800px-Paradise_Lost_frontispiece.jpg",
-    status: "Returned",
-  },
-  {
-    title: "The Pilgrim's Progress",
-    author: "John Bunyan",
-    category: "Christian",
-    description: "This famous story of man's progress through life in...",
-    imageUrl: "https://images.gr-assets.com/books/1388204797l/214936.jpg",
-    status: "On-going",
-  },
-  {
-    title: "Fuente Ovejuna",
-    author: "Lope de Vega, Juan María Marín",
-    category: "Plays",
-    description: "Lope de Vega trazó en Fuente Ovejuna, con magnífi...",
-    imageUrl: "https://images.gr-assets.com/books/1347313042l/1131972.jpg",
-    status: "Overdue",
-  },
-  {
-    title: "Phaedra",
-    author: "Jean Racine, Richard Wilbur",
-    category: "Drama",
-    description: "A brilliant translation of one of the most influential...",
-    imageUrl: "https://images.gr-assets.com/books/1348259163l/57663.jpg",
-    status: "Overdue",
-  },
-];
-
-const BookCard = ({ book }: { book: (typeof issuedBooks)[0] }) => {
+const BookCard = ({ issuedBook }: { issuedBook: any }) => {
   const statusColors: { [key: string]: string } = {
-    Returned: "text-green-600",
-    "On-going": "text-orange-500",
-    Overdue: "text-red-600",
+    returned: "text-green-600",
+    issued: "text-orange-500",
+    overdue: "text-red-600",
   };
+
+  const primaryCategory =
+    issuedBook.categories && issuedBook.categories.length > 0
+      ? issuedBook.categories[0].name
+      : "N/A";
+  const primaryAuthor =
+    issuedBook.authors && issuedBook.authors.length > 0
+      ? issuedBook.authors[0].name
+      : "N/A";
 
   return (
     <div className="overflow-hidden rounded-lg bg-[#EAE8E3] shadow-lg">
       <div className="relative h-48 w-full">
         <Image
-          src={book.imageUrl}
-          alt={`Cover of ${book.title}`}
+          src={`https://picsum.photos/seed/${issuedBook.book_id}/200/300`}
+          alt={`Cover of ${issuedBook.title}`}
           layout="fill"
           objectFit="cover"
         />
       </div>
       <div className="p-4">
-        <p className="text-sm font-semibold text-gray-600">{book.category}</p>
-        <h3 className="mt-1 text-lg font-bold text-gray-800">{book.title}</h3>
-        <p className="text-sm text-gray-600">{book.author}</p>
+        <p className="text-sm font-semibold text-gray-600">{primaryCategory}</p>
+        <h3 className="mt-1 text-lg font-bold text-gray-800">
+          {issuedBook.title}
+        </h3>
+        <p className="text-sm text-gray-600">{primaryAuthor}</p>
         <p className="mt-2 h-10 overflow-hidden text-sm text-gray-700">
-          {book.description}
+          {issuedBook.description}
         </p>
         <p className="mt-3 text-sm text-gray-800">
           Status:{" "}
-          <span className={`font-bold ${statusColors[book.status]}`}>
-            {book.status}
+          <span className={`font-bold ${statusColors[issuedBook.issued_status]}`}>
+            {issuedBook.issued_status}
           </span>
         </p>
+        <p className="text-sm text-gray-800">
+          Due Date: {new Date(issuedBook.due_date).toLocaleDateString()}
+        </p>
+        {issuedBook.return_date && (
+          <p className="text-sm text-gray-800">
+            Return Date: {new Date(issuedBook.return_date).toLocaleDateString()}
+          </p>
+        )}
       </div>
     </div>
   );
 };
 
 export default function IssuedBooksPage() {
+  const [issuedBooks, setIssuedBooks] = useState<any[]>([]);
   const [selectedStatus, setSelectedStatus] = useState("All");
 
-  const statuses = ["All", ...new Set(issuedBooks.map((book) => book.status))];
+  const fetchIssuedBooks = async () => {
+    try {
+      const response = await getIssuedBooks();
+      setIssuedBooks(response.data);
+    } catch (error) {
+      console.error("Failed to fetch issued books:", error);
+    }
+  };
 
-  const filteredBooks = issuedBooks.filter((book) => {
-    return selectedStatus === "All" || book.status === selectedStatus;
+  useEffect(() => {
+    fetchIssuedBooks();
+  }, []);
+
+  const statuses = ["All", ...new Set(issuedBooks.map((book) => book.issued_status))];
+
+  const filteredBooks = issuedBooks.filter((issuedBook) => {
+    return selectedStatus === "All" || issuedBook.issued_status === selectedStatus;
   });
 
   return (
@@ -110,8 +100,8 @@ export default function IssuedBooksPage() {
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {filteredBooks.length > 0 ? (
-          filteredBooks.map((book) => (
-            <BookCard key={book.title} book={book} />
+          filteredBooks.map((issuedBook) => (
+            <BookCard key={issuedBook.issued_book_id} issuedBook={issuedBook} />
           ))
         ) : (
           <p className="col-span-full text-center text-gray-600">

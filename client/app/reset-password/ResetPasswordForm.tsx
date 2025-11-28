@@ -2,7 +2,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import axios from "axios";
+import { resetPassword as resetPasswordService } from "@/lib/services/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -41,10 +41,7 @@ export default function ResetPasswordForm() {
     setError("");
 
     try {
-      const response = await axios.post(
-        "http://localhost:3001/api/auth/reset-password",
-        { token, password },
-      );
+      const response = await resetPasswordService(token, password);
       setMessage(response.data.message + " Redirecting to login...");
       setTimeout(() => {
         router.push("/");

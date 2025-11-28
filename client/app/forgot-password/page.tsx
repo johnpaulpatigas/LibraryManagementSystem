@@ -3,7 +3,7 @@
 import AuthLayout from "@/components/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import axios from "axios";
+import { forgotPassword } from "@/lib/services/auth";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -20,10 +20,7 @@ export default function ForgotPasswordPage() {
     setError("");
 
     try {
-      const response = await axios.post(
-        "http://localhost:3001/api/auth/forgot-password",
-        { email },
-      );
+      const response = await forgotPassword(email);
       setMessage(response.data.message);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
