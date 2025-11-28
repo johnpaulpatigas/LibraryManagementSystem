@@ -1,64 +1,23 @@
 // app/(student)/book-request/page.tsx
 "use client";
 import StudentLayout from "@/components/StudentLayout";
-import Image from "next/image";
-import { useState } from "react";
-
-const requestedBooks = [
-  {
-    title: "A Midsummer Night's Dream",
-    author: "William Shakespeare",
-    category: "Classics",
-    imageUrl: "https://images.gr-assets.com/books/1327179044l/9749964.jpg",
-    status: "Approved",
-  },
-  {
-    title: "Paradise Lost",
-    author: "John Milton",
-    category: "Poetry",
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Paradise_Lost_frontispiece.jpg/800px-Paradise_Lost_frontispiece.jpg",
-    status: "Approved",
-  },
-  {
-    title: "The Imaginary Invalid",
-    author: "Molière",
-    category: "Classics",
-    imageUrl: "https://images.gr-assets.com/books/1426101967l/25131499.jpg",
-    status: "Rejected",
-  },
-  {
-    title: "The Pilgrim's Progress",
-    author: "John Bunyan",
-    category: "Christian",
-    imageUrl: "https://images.gr-assets.com/books/1388204797l/214936.jpg",
-    status: "Pending",
-  },
-  {
-    title: "Fuente Ovejuna",
-    author: "Lope de Vega, Juan María Marín",
-    category: "Plays",
-    imageUrl: "https://images.gr-assets.com/books/1347313042l/1131972.jpg",
-    status: "Approved",
-  },
-  {
-    title: "Phaedra",
-    author: "Jean Racine, Richard Wilbur",
-    category: "Drama",
-    imageUrl: "https://images.gr-assets.com/books/1348259163l/57663.jpg",
-    status: "Approved",
-  },
-];
+import { Plus, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  getBookRequests,
+  deleteBookRequest,
+} from "@/lib/services/book_requests";
+import BookRequestModal from "@/components/BookRequestModal";
 
 const StatusBadge = ({
   status,
 }: {
-  status: "Approved" | "Pending" | "Rejected";
+  status: "approved" | "pending" | "rejected";
 }) => {
   const statusStyles = {
-    Approved: "bg-green-500 text-white",
-    Pending: "bg-orange-400 text-white",
-    Rejected: "bg-red-500 text-white",
+    approved: "bg-green-500 text-white",
+    pending: "bg-orange-400 text-white",
+    rejected: "bg-red-500 text-white",
   };
   return (
     <span
@@ -69,57 +28,88 @@ const StatusBadge = ({
   );
 };
 
-const BookCard = ({ book }: { book: (typeof requestedBooks)[0] }) => {
-  const categoryColors: { [key: string]: string } = {
-    Classics: "text-green-700",
-    Poetry: "text-blue-700",
-    Christian: "text-yellow-700",
-    Plays: "text-purple-700",
-    Drama: "text-red-700",
-  };
-
+const BookRequestCard = ({ bookRequest, onDelete }: { bookRequest: any, onDelete: (id: number) => void }) => {
   return (
-    <div className="overflow-hidden rounded-lg bg-[#EAE8E3] shadow-lg">
-      <div className="relative h-48 w-full">
-        <Image
-          src={book.imageUrl}
-          alt={`Cover of ${book.title}`}
-          layout="fill"
-          objectFit="cover"
-        />
-      </div>
-      <div className="p-4">
-        <p
-          className={`text-sm font-semibold ${
-            categoryColors[book.category] || "text-gray-600"
-          }`}
+    <div className="overflow-hidden rounded-lg bg-[#EAE8E3] p-4 shadow-lg">
+      <h3 className="mt-1 text-lg font-bold text-gray-800">
+        {bookRequest.book_title}
+      </h3>
+      <p className="mb-3 text-sm text-gray-600">{bookRequest.author_name}</p>
+      <StatusBadge status={bookRequest.status} />
+      <div className="mt-4">
+        <button
+          onClick={() => onDelete(bookRequest.id)}
+          className="text-red-500 hover:text-red-700"
         >
-          {book.category}
-        </p>
-        <h3 className="mt-1 text-lg font-bold text-gray-800">{book.title}</h3>
-        <p className="mb-3 text-sm text-gray-600">{book.author}</p>
-        <StatusBadge
-          status={book.status as "Approved" | "Pending" | "Rejected"}
-        />
+          <Trash2 className="h-5 w-5" />
+        </button>
       </div>
     </div>
   );
 };
 
 export default function BookRequestPage() {
-  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [bookRequests, setBookRequests] = useState<any[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBookRequest, setSelectedBookRequest] = useState(null);
+
+  const fetchBookRequests = async () => {
+    try {
+      const response = await getBookRequests();
+      setBookRequests(response.data);
+    } catch (error) {
+      console.error("Failed to fetch book requests:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookRequests();
+  }, []);
+
+  const handleCreateBookRequest = () => {
+    setSelectedBookRequest(null);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteBookRequest = async (id: number) => {
+    if (window.confirm("Are you sure you want to delete this book request?")) {
+      try {
+        await deleteBookRequest(id);
+        fetchBookRequests();
+      } catch (error) {
+        console.error("Failed to delete book request:", error);
+      }
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    fetchBookRequests();
+  };
 
   const statuses = [
-    "All",
-    ...new Set(requestedBooks.map((book) => book.status)),
+    "all",
+    ...new Set(bookRequests.map((request) => request.status)),
   ];
+  const [selectedStatus, setSelectedStatus] = useState("all");
 
-  const filteredBooks = requestedBooks.filter((book) => {
-    return selectedStatus === "All" || book.status === selectedStatus;
+  const filteredBookRequests = bookRequests.filter((request) => {
+    return selectedStatus === "all" || request.status === selectedStatus;
   });
 
   return (
     <StudentLayout activePage="Book Request" headerTitle="Book Request">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-gray-800">My Book Requests</h1>
+        <button
+          onClick={handleCreateBookRequest}
+          className="flex items-center gap-2 rounded-md bg-[#587878] px-4 py-2 font-semibold text-white transition-colors hover:bg-[#4a6666]"
+        >
+          <Plus className="h-5 w-5" />
+          <span>Request Book</span>
+        </button>
+      </div>
+
       <div className="mb-8 flex items-center justify-start">
         <select
           value={selectedStatus}
@@ -128,17 +118,33 @@ export default function BookRequestPage() {
         >
           {statuses.map((status) => (
             <option key={status} value={status}>
-              {status}
+              {status.charAt(0).toUpperCase() + status.slice(1)}
             </option>
           ))}
         </select>
       </div>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {filteredBooks.map((book) => (
-          <BookCard key={book.title} book={book} />
-        ))}
+        {filteredBookRequests.length > 0 ? (
+          filteredBookRequests.map((request) => (
+            <BookRequestCard
+              key={request.id}
+              bookRequest={request}
+              onDelete={handleDeleteBookRequest}
+            />
+          ))
+        ) : (
+          <p className="col-span-full text-center text-gray-600">
+            No book requests found.
+          </p>
+        )}
       </div>
+      <BookRequestModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        bookRequest={selectedBookRequest}
+        onFinished={handleModalClose}
+      />
     </StudentLayout>
   );
 }

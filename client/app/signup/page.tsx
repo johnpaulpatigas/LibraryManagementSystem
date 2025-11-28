@@ -11,13 +11,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { MoveLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { register } from "@/lib/services/auth";
 
 const formSchema = z.object({
   fullname: z.string().min(2, "Name must be at least 2 characters."),
@@ -56,14 +56,8 @@ export default function SignupPage() {
     setError(null);
 
     try {
-      const response = await axios.post(
-        "http://localhost:3001/api/auth/register",
-        data,
-      );
-
-      console.log("Signup successful:", response.data);
-
-      router.push("/");
+      await register(data);
+      router.push("/login");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Signup failed:", err);

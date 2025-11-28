@@ -1,7 +1,15 @@
 // app/(student)/settings/page.tsx
 "use client";
 import StudentLayout from "@/components/StudentLayout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getProfile } from "@/lib/services/auth";
+import { updateUserProfile, changePassword } from "@/lib/services/users";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 const SettingsCard = ({
   title,
@@ -16,95 +24,167 @@ const SettingsCard = ({
   </div>
 );
 
-export default function SettingsPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+const profileFormSchema = z.object({
+  fullname: z.string().min(1, "Name is required."),
+  email: z.string().email("Invalid email address."),
+});
 
-  const handleProfileSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Saving profile:", { name, email });
+const passwordFormSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required."),
+  newPassword: z.string().min(6, "New password must be at least 6 characters."),
+  confirmPassword: z.string().min(1, "Confirm password is required."),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match.",
+  path: ["confirmPassword"],
+});
+
+export default function SettingsPage() {
+  const [profileMessage, setProfileMessage] = useState<string | null>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const profileForm = useForm<z.infer<typeof profileFormSchema>>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: {
+      fullname: "",
+      email: "",
+    },
+  });
+
+  const passwordForm = useForm<z.infer<typeof passwordFormSchema>>({
+    resolver: zodResolver(passwordFormSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await getProfile();
+        profileForm.reset(response.data);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      }
+    };
+    fetchProfile();
+  }, [profileForm]);
+
+  const onProfileSubmit = async (data: z.infer<typeof profileFormSchema>) => {
+    setProfileMessage(null);
+    setProfileError(null);
+    try {
+      await updateUserProfile(data);
+      setProfileMessage("Profile updated successfully!");
+    } catch (error: any) {
+      setProfileError(error.response?.data?.error || "Failed to update profile.");
+    }
   };
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Updating password...");
+  const onPasswordSubmit = async (data: z.infer<typeof passwordFormSchema>) => {
+    setPasswordMessage(null);
+    setPasswordError(null);
+    try {
+      await changePassword(data);
+      setPasswordMessage("Password updated successfully!");
+      passwordForm.reset();
+    } catch (error: any) {
+      setPasswordError(error.response?.data?.error || "Failed to change password.");
+    }
   };
 
   return (
     <StudentLayout activePage="Settings" headerTitle="Settings">
       <SettingsCard title="Profile Information">
-        <form onSubmit={handleProfileSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:border-green-500 focus:ring-green-500 focus:outline-none"
+        <Form {...profileForm}>
+          <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-4">
+            {profileMessage && <p className="text-green-600">{profileMessage}</p>}
+            {profileError && <p className="text-red-600">{profileError}</p>}
+            <FormField
+              control={profileForm.control}
+              name="fullname"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="mt-1 block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:border-green-500 focus:ring-green-500 focus:outline-none" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:border-green-500 focus:ring-green-500 focus:outline-none"
+            <FormField
+              control={profileForm.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" {...field} className="mt-1 block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:border-green-500 focus:ring-green-500 focus:outline-none" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="pt-2">
-            <button
-              type="submit"
-              className="rounded-md bg-green-600 px-6 py-2 font-semibold text-white hover:bg-green-700"
-            >
-              Save
-            </button>
-          </div>
-        </form>
+            <div className="pt-2">
+              <Button type="submit">Save</Button>
+            </div>
+          </form>
+        </Form>
       </SettingsCard>
 
       <SettingsCard title="Update Password">
-        <form onSubmit={handlePasswordSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Current Password
-            </label>
-            <input
-              type="password"
-              className="mt-1 block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm"
+        <Form {...passwordForm}>
+          <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+            {passwordMessage && <p className="text-green-600">{passwordMessage}</p>}
+            {passwordError && <p className="text-red-600">{passwordError}</p>}
+            <FormField
+              control={passwordForm.control}
+              name="currentPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Current Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} className="mt-1 block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              New Password
-            </label>
-            <input
-              type="password"
-              className="mt-1 block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm"
+            <FormField
+              control={passwordForm.control}
+              name="newPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>New Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} className="mt-1 block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              className="mt-1 block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm"
+            <FormField
+              control={passwordForm.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} className="mt-1 block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="pt-2">
-            <button
-              type="submit"
-              className="rounded-md bg-green-600 px-6 py-2 font-semibold text-white hover:bg-green-700"
-            >
-              Save
-            </button>
-          </div>
-        </form>
+            <div className="pt-2">
+              <Button type="submit">Save</Button>
+            </div>
+          </form>
+        </Form>
       </SettingsCard>
     </StudentLayout>
   );

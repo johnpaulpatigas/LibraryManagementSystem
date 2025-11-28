@@ -2,68 +2,28 @@
 "use client";
 import StudentLayout from "@/components/StudentLayout";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getBooks } from "@/lib/services/books";
 
-const allBooks = [
-  {
-    title: "A Midsummer Night's Dream",
-    author: "William Shakespeare",
-    category: "Classics",
-    description: "Shakespeare's intertwined love polygons begin to get...",
-    imageUrl: "https://images.gr-assets.com/books/1327179044l/9749964.jpg",
-  },
-  {
-    title: "Paradise Lost",
-    author: "John Milton",
-    category: "Poetry",
-    description: "John Milton's Paradise Lost is one of the greatest epic...",
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Paradise_Lost_frontispiece.jpg/800px-Paradise_Lost_frontispiece.jpg",
-  },
-  {
-    title: "The Imaginary Invalid",
-    author: "Molière",
-    category: "Classics",
-    description: "To reduce his medical fees, hypochondriac M. Argan...",
-    imageUrl: "https://images.gr-assets.com/books/1426101967l/25131499.jpg",
-  },
-  {
-    title: "The Pilgrim's Progress",
-    author: "John Bunyan",
-    category: "Christian",
-    description: "This famous story of man's progress through life in...",
-    imageUrl: "https://images.gr-assets.com/books/1388204797l/214936.jpg",
-  },
-  {
-    title: "Fuente Ovejuna",
-    author: "Lope de Vega, Juan María Marín",
-    category: "Plays",
-    description: "Lope de Vega trazó en Fuente Ovejuna, con magnífi...",
-    imageUrl: "https://images.gr-assets.com/books/1347313042l/1131972.jpg",
-  },
-  {
-    title: "Phaedra",
-    author: "Jean Racine, Richard Wilbur",
-    category: "Drama",
-    description: "A brilliant translation of one of the most influential...",
-    imageUrl: "https://images.gr-assets.com/books/1348259163l/57663.jpg",
-  },
-];
-
-const BookCard = ({ book }: { book: (typeof allBooks)[0] }) => {
+const BookCard = ({ book }: { book: any }) => {
   const categoryColors: { [key: string]: string } = {
     Classics: "text-green-700",
     Poetry: "text-blue-700",
     Christian: "text-yellow-700",
     Plays: "text-purple-700",
     Drama: "text-red-700",
+    Romance: "text-pink-700",
+    // Add more categories and colors as needed
   };
+
+  const primaryCategory = book.categories && book.categories.length > 0 ? book.categories[0].name : "N/A";
+  const primaryAuthor = book.authors && book.authors.length > 0 ? book.authors[0].name : "N/A";
 
   return (
     <div className="transform overflow-hidden rounded-lg bg-[#EAE8E3] shadow-lg transition-transform duration-300 hover:-translate-y-1">
       <div className="relative h-48 w-full">
         <Image
-          src={book.imageUrl}
+          src={book.imageUrl || `https://picsum.photos/seed/${book.id}/200/300`} // Placeholder image
           alt={`Cover of ${book.title}`}
           layout="fill"
           objectFit="cover"
@@ -72,13 +32,13 @@ const BookCard = ({ book }: { book: (typeof allBooks)[0] }) => {
       <div className="p-4">
         <p
           className={`text-sm font-semibold ${
-            categoryColors[book.category] || "text-gray-600"
+            categoryColors[primaryCategory] || "text-gray-600"
           }`}
         >
-          {book.category}
+          {primaryCategory}
         </p>
         <h3 className="mt-1 text-lg font-bold text-gray-800">{book.title}</h3>
-        <p className="text-sm text-gray-600">{book.author}</p>
+        <p className="text-sm text-gray-600">{primaryAuthor}</p>
         <p className="mt-2 h-10 overflow-hidden text-sm text-gray-700">
           {book.description}
         </p>
@@ -88,17 +48,42 @@ const BookCard = ({ book }: { book: (typeof allBooks)[0] }) => {
 };
 
 export default function BrowseBooksPage() {
+  const [allBooks, setAllBooks] = useState<any[]>([]);
+  const [categories, setCategories] = useState(["All"]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const categories = ["All", ...new Set(allBooks.map((book) => book.category))];
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const booksRes = await getBooks();
+        setAllBooks(booksRes.data);
+
+        // Extract unique categories from fetched books
+        const uniqueCategories = [
+          ...new Set(
+            booksRes.data.flatMap((book: any) =>
+              book.categories.map((cat: any) => cat.name),
+            ),
+          ),
+        ];
+        setCategories(["All", ...(uniqueCategories as string[])]);
+      } catch (error) {
+        console.error("Error fetching initial data:", error);
+      }
+    };
+    fetchInitialData();
+  }, []);
 
   const filteredBooks = allBooks.filter((book) => {
     const matchesCategory =
-      selectedCategory === "All" || book.category === selectedCategory;
+      selectedCategory === "All" ||
+      book.categories.some((cat: any) => cat.name === selectedCategory);
     const matchesSearch =
       book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchTerm.toLowerCase());
+      book.authors.some((author: any) =>
+        author.name.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
     return matchesCategory && matchesSearch;
   });
 
@@ -127,10 +112,9 @@ export default function BrowseBooksPage() {
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {filteredBooks.map((book) => (
-          <BookCard key={book.title} book={book} />
+          <BookCard key={book.id} book={book} />
         ))}
       </div>
     </StudentLayout>
   );
 }
-

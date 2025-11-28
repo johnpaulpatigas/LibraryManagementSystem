@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import Link from "next/link";
+import { login } from "@/lib/services/auth";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -53,22 +53,8 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.post(
-        "http://localhost:3001/api/auth/login",
-        data,
-      );
-
-      const { token, user } = response.data;
-
-      if (data.rememberMe) {
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-      } else {
-        sessionStorage.setItem("token", token);
-        sessionStorage.setItem("user", JSON.stringify(user));
-      }
-
-      console.log("Login successful, remember me:", data.rememberMe);
+      const response = await login(data.studentid, data.password);
+      const { user } = response;
 
       if (user.role === "admin") {
         router.push("/a-dashboard");
@@ -155,11 +141,11 @@ export default function LoginPage() {
               )}
             />
 
-            <Link href="/forgot-password">
+            <a href="/forgot-password">
               <small className="text-sm leading-none font-medium text-green-700">
                 Forgot Password?
               </small>
-            </Link>
+            </a>
           </div>
           <Button
             className="w-full cursor-pointer rounded-full bg-blue-700 px-10 text-lg hover:bg-blue-600"
@@ -171,9 +157,9 @@ export default function LoginPage() {
           <div className="mt-3 flex w-full justify-center">
             <small className="text-sm leading-none font-medium">
               {"Don't have an account?"}{" "}
-              <Link className="text-green-700" href="/signup">
+              <a className="text-green-700" href="/signup">
                 Sign up
-              </Link>
+              </a>
             </small>
           </div>
         </form>
