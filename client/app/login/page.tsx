@@ -72,9 +72,9 @@ export default function LoginPage() {
       console.log("Login successful, remember me:", data.rememberMe);
 
       if (user.role === "admin") {
-        router.push("/dashboard");
+        router.push("/a-dashboard");
       } else {
-        router.push("/student/dashboard");
+        router.push("/s-dashboard");
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {

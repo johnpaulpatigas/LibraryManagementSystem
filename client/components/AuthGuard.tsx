@@ -45,12 +45,12 @@ export default function AuthGuard({
           setIsAuthorized(true);
         } else {
           const dashboardUrl =
-            userRole === "admin" ? "/dashboard" : "/student/dashboard";
+            userRole === "admin" ? "/a-dashboard" : "/s-dashboard";
           router.push(dashboardUrl);
         }
       } else {
         const dashboardUrl =
-          userRole === "admin" ? "/dashboard" : "/student/dashboard";
+          userRole === "admin" ? "/a-dashboard" : "/s-dashboard";
         router.push(dashboardUrl);
       }
     } catch (error) {
