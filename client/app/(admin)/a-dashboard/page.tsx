@@ -1,10 +1,10 @@
 // app/(admin)/a-dashboard/page.tsx
 "use client";
 import AdminLayout from "@/components/AdminLayout";
-import { getBooks } from "@/lib/services/books";
-import { getUsers } from "@/lib/services/users";
 import { getAuthors } from "@/lib/services/authors";
+import { getBooks } from "@/lib/services/books";
 import { getCategories } from "@/lib/services/categories";
+import { getUsers } from "@/lib/services/users";
 import { useEffect, useState } from "react";
 
 const StatCard = ({
@@ -31,12 +31,13 @@ export default function ReworkedAdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [usersRes, booksRes, authorsRes, categoriesRes] = await Promise.all([
-          getUsers(),
-          getBooks(),
-          getAuthors(),
-          getCategories(),
-        ]);
+        const [usersRes, booksRes, authorsRes, categoriesRes] =
+          await Promise.all([
+            getUsers(),
+            getBooks(),
+            getAuthors(),
+            getCategories(),
+          ]);
         setStats({
           users: usersRes.data.length,
           books: booksRes.data.length,

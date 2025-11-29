@@ -1,10 +1,10 @@
 // app/(admin)/user-management/page.tsx
 "use client";
 import AdminLayout from "@/components/AdminLayout";
+import UserModal from "@/components/UserModal";
+import { deleteUser, getUsers } from "@/lib/services/users";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getUsers, deleteUser } from "@/lib/services/users";
-import UserModal from "@/components/UserModal";
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -80,10 +80,14 @@ export default function UserManagementPage() {
                 key={user.id}
                 className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50"
               >
-                <td className="p-4 font-medium text-gray-800">{user.fullname}</td>
+                <td className="p-4 font-medium text-gray-800">
+                  {user.fullname}
+                </td>
                 <td className="p-4 text-gray-600">{user.email}</td>
                 <td className="p-4 text-gray-600">{user.role}</td>
-                <td className="p-4 text-gray-600">{new Date(user.created_at).toLocaleDateString()}</td>
+                <td className="p-4 text-gray-600">
+                  {new Date(user.created_at).toLocaleDateString()}
+                </td>
                 <td className="p-4">
                   <div className="flex items-center gap-3">
                     <button

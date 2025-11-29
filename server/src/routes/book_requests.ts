@@ -10,7 +10,17 @@ export const createBookRequestsRouter = (pool: Pool) => {
   // Get all book requests
   router.get("/", async (req, res) => {
     try {
-      const result = await pool.query("SELECT * FROM book_requests");
+      const result = await pool.query(`
+        SELECT
+          br.*,
+          u.fullname AS user_fullname
+        FROM
+          book_requests br
+        JOIN
+          users u ON br.user_id = u.id
+        ORDER BY
+          br.created_at DESC
+      `);
       res.json(result.rows);
     } catch (error) {
       console.error(error);
@@ -22,7 +32,20 @@ export const createBookRequestsRouter = (pool: Pool) => {
   router.get("/:id", async (req, res) => {
     const { id } = req.params;
     try {
-      const result = await pool.query("SELECT * FROM book_requests WHERE id = $1", [id]);
+      const result = await pool.query(
+        `
+        SELECT
+          br.*,
+          u.fullname AS user_fullname
+        FROM
+          book_requests br
+        JOIN
+          users u ON br.user_id = u.id
+        WHERE
+          br.id = $1
+      `,
+        [id]
+      );
       if (result.rows.length === 0) {
         return res.status(404).json({ error: "Book request not found." });
       }
@@ -35,12 +58,12 @@ export const createBookRequestsRouter = (pool: Pool) => {
 
   // Create a new book request
   router.post("/", async (req, res) => {
-    const { book_title, author_name } = req.body;
+    const { book_title, author_name, status } = req.body;
     const userId = req.user?.userId;
     try {
       const result = await pool.query(
-        "INSERT INTO book_requests (user_id, book_title, author_name) VALUES ($1, $2, $3) RETURNING *",
-        [userId, book_title, author_name]
+        "INSERT INTO book_requests (user_id, book_title, author_name, status) VALUES ($1, $2, $3, $4) RETURNING *",
+        [userId, book_title, author_name, status || "pending"]
       );
       res.status(201).json(result.rows[0]);
     } catch (error) {

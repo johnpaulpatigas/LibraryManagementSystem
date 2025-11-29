@@ -1,11 +1,10 @@
 // app/(admin)/manage-books/page.tsx
 "use client";
 import AdminLayout from "@/components/AdminLayout";
-import { Pencil, Plus, Trash2 } from "lucide-react";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { getBooks, deleteBook } from "@/lib/services/books";
 import BookModal from "@/components/BookModal";
+import { deleteBook, getBooks } from "@/lib/services/books";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function ManageBooksPage() {
   const [books, setBooks] = useState<any[]>([]);

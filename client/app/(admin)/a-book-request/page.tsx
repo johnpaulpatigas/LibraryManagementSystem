@@ -1,11 +1,14 @@
 // app/(admin)/book-request/page.tsx
 "use client";
 import AdminLayout from "@/components/AdminLayout";
+import BookRequestModal from "@/components/BookRequestModal";
+import {
+  deleteBookRequest,
+  getBookRequests,
+} from "@/lib/services/book_requests";
 import { Pencil, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getBookRequests, deleteBookRequest } from "@/lib/services/book_requests";
-import BookRequestModal from "@/components/BookRequestModal"; // Import the modal
 
 type BookRequest = {
   id: number;
@@ -42,24 +45,27 @@ export default function BookRequestAdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedBookRequest, setSelectedBookRequest] = useState<BookRequest | null>(null);
+  const [selectedBookRequest, setSelectedBookRequest] =
+    useState<BookRequest | null>(null);
 
   const fetchBookRequests = async () => {
     try {
       setLoading(true);
       const response = await getBookRequests();
-      const formattedRequests: BookRequest[] = response.data.map((req: any) => ({
-        id: req.id,
-        user_id: req.user_id,
-        book_title: req.book_title,
-        author_name: req.author_name,
-        status: req.status,
-        borrower: "N/A", // Placeholder, will need to fetch user info
-        issuedId: req.id, // Using request ID as issued ID for now
-        fees: 0,
-        toReturn: "N/A",
-        imageUrl: "/file.svg",
-      }));
+      const formattedRequests: BookRequest[] = response.data.map(
+        (req: any) => ({
+          id: req.id,
+          user_id: req.user_id,
+          book_title: req.book_title,
+          author_name: req.author_name,
+          status: req.status,
+          borrower: "N/A",
+          issuedId: req.id,
+          fees: 0,
+          toReturn: "N/A",
+          imageUrl: "/file.svg",
+        }),
+      );
       setBookRequests(formattedRequests);
     } catch (err: any) {
       setError(err.message || "Failed to fetch book requests.");
@@ -82,9 +88,11 @@ export default function BookRequestAdminPage() {
     if (window.confirm("Are you sure you want to delete this book request?")) {
       try {
         await deleteBookRequest(id);
-        fetchBookRequests(); // Refresh the list
+        fetchBookRequests();
       } catch (err: any) {
-        alert("Failed to delete book request: " + (err.message || "Unknown error"));
+        alert(
+          "Failed to delete book request: " + (err.message || "Unknown error"),
+        );
         console.error("Failed to delete book request:", err);
       }
     }
@@ -97,13 +105,15 @@ export default function BookRequestAdminPage() {
 
   const handleFormFinished = () => {
     handleModalClose();
-    fetchBookRequests(); // Refresh the list after form submission
+    fetchBookRequests();
   };
 
   if (loading) {
     return (
       <AdminLayout activePage="Book Request">
-        <div className="text-center text-gray-600">Loading book requests...</div>
+        <div className="text-center text-gray-600">
+          Loading book requests...
+        </div>
       </AdminLayout>
     );
   }

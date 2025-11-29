@@ -13,16 +13,10 @@ export const createTransactionsRouter = (pool: Pool) => {
     try {
       const result = await pool.query(`
         SELECT
-          t.id,
-          t.user_id,
+          t.*,
           u.fullname AS user_name,
-          t.issued_book_id,
           b.title AS book_name,
-          t.type,
-          t.amount,
-          t.description,
-          t.status, -- Assuming 'status' column exists in transactions table
-          t.created_at
+          ib.status AS issued_book_status
         FROM
           transactions t
         JOIN
@@ -45,13 +39,31 @@ export const createTransactionsRouter = (pool: Pool) => {
   router.get("/:id", async (req, res) => {
     const { id } = req.params;
     try {
-      const result = await pool.query("SELECT * FROM transactions WHERE id = $1", [id]);
+      const result = await pool.query(
+        `
+        SELECT
+          t.*,
+          u.fullname AS user_fullname
+        FROM
+          transactions t
+        JOIN
+          users u ON t.user_id = u.id
+        WHERE
+          t.id = $1
+      `,
+        [id]
+      );
       if (result.rows.length === 0) {
         return res.status(404).json({ error: "Transaction not found." });
       }
       // a non-admin user should only be able to see their own transactions
-      if (req.user?.role !== "admin" && result.rows[0].user_id !== req.user?.userId) {
-        return res.status(403).json({ error: "Forbidden: You can only view your own transactions." });
+      if (
+        req.user?.role !== "admin" &&
+        result.rows[0].user_id !== req.user?.userId
+      ) {
+        return res
+          .status(403)
+          .json({ error: "Forbidden: You can only view your own transactions." });
       }
       res.json(result.rows[0]);
     } catch (error) {
@@ -65,7 +77,7 @@ export const createTransactionsRouter = (pool: Pool) => {
     const { user_id, issued_book_id, type, amount, description } = req.body;
     try {
       const result = await pool.query(
-        "INSERT INTO transactions (user_id, issued_book_id, type, amount, description) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        "INSERT INTO transactions (user_id, issued_book_id, type, amount, description, status) VALUES ($1, $2, $3, $4, $5, 'unpaid') RETURNING *",
         [user_id, issued_book_id, type, amount, description]
       );
       res.status(201).json(result.rows[0]);
@@ -78,12 +90,47 @@ export const createTransactionsRouter = (pool: Pool) => {
   // Update a transaction (admin only)
   router.put("/:id", adminMiddleware, async (req, res) => {
     const { id } = req.params;
-    const { user_id, issued_book_id, type, amount, description, status } = req.body;
+    const { user_id, issued_book_id, type, amount, description, status } =
+      req.body;
     try {
-      const result = await pool.query(
-        "UPDATE transactions SET user_id = $1, issued_book_id = $2, type = $3, amount = $4, description = $5, status = $6 WHERE id = $7 RETURNING *",
-        [user_id, issued_book_id, type, amount, description, status, id]
-      );
+      let query = "UPDATE transactions SET ";
+      const queryParams: any[] = [];
+      const updates: string[] = [];
+      let paramIndex = 1;
+
+      if (user_id !== undefined) {
+        updates.push(`user_id = $${paramIndex++}`);
+        queryParams.push(user_id);
+      }
+      if (issued_book_id !== undefined) {
+        updates.push(`issued_book_id = $${paramIndex++}`);
+        queryParams.push(issued_book_id);
+      }
+      if (type !== undefined) {
+        updates.push(`type = $${paramIndex++}`);
+        queryParams.push(type);
+      }
+      if (amount !== undefined) {
+        updates.push(`amount = $${paramIndex++}`);
+        queryParams.push(amount);
+      }
+      if (description !== undefined) {
+        updates.push(`description = $${paramIndex++}`);
+        queryParams.push(description);
+      }
+      if (status !== undefined) {
+        updates.push(`status = $${paramIndex++}`);
+        queryParams.push(status);
+      }
+
+      if (updates.length === 0) {
+        return res.status(400).json({ error: "No fields to update." });
+      }
+
+      query += updates.join(", ") + ` WHERE id = $${paramIndex++} RETURNING *`;
+      queryParams.push(id);
+
+      const result = await pool.query(query, queryParams);
       if (result.rows.length === 0) {
         return res.status(404).json({ error: "Transaction not found." });
       }
