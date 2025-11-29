@@ -54,17 +54,6 @@ CREATE TABLE issued_books (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE transactions (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    issued_book_id INTEGER REFERENCES issued_books(id),
-    type VARCHAR(20) NOT NULL, -- fine, payment
-    amount DECIMAL(10, 2) NOT NULL,
-    description TEXT,
-    status VARCHAR(20) NOT NULL DEFAULT 'unpaid', -- unpaid, paid
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE invoices (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,

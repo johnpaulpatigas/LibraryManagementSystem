@@ -45,11 +45,6 @@ const navItems = [
     icon: BookOpenCheck,
   },
   {
-    name: "Transactions",
-    href: "/transactions",
-    icon: History,
-  },
-  {
     name: "User Management",
     href: "/user-management",
     icon: Users,
