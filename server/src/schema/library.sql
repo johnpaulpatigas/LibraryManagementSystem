@@ -53,12 +53,3 @@ CREATE TABLE issued_books (
     status VARCHAR(20) NOT NULL DEFAULT 'issued', -- issued, returned, overdue
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE TABLE invoices (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    amount DECIMAL(10, 2) NOT NULL,
-    due_date TIMESTAMP WITH TIME ZONE,
-    status VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending, paid, overdue
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
