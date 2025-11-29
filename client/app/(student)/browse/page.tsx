@@ -4,8 +4,9 @@ import StudentLayout from "@/components/StudentLayout";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getBooks } from "@/lib/services/books";
+import BookDetailsModal from "@/components/BookDetailsModal";
 
-const BookCard = ({ book }: { book: any }) => {
+const BookCard = ({ book, onClick }: { book: any, onClick: () => void }) => {
   const categoryColors: { [key: string]: string } = {
     Classics: "text-green-700",
     Poetry: "text-blue-700",
@@ -20,7 +21,7 @@ const BookCard = ({ book }: { book: any }) => {
   const primaryAuthor = book.authors && book.authors.length > 0 ? book.authors[0].name : "N/A";
 
   return (
-    <div className="transform overflow-hidden rounded-lg bg-[#EAE8E3] shadow-lg transition-transform duration-300 hover:-translate-y-1">
+    <div onClick={onClick} className="transform cursor-pointer overflow-hidden rounded-lg bg-[#EAE8E3] shadow-lg transition-transform duration-300 hover:-translate-y-1">
       <div className="relative h-48 w-full">
         <Image
           src={book.imageUrl || `https://picsum.photos/seed/${book.id}/200/300`} // Placeholder image
@@ -52,6 +53,8 @@ export default function BrowseBooksPage() {
   const [categories, setCategories] = useState(["All"]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedBook, setSelectedBook] = useState<any | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -87,6 +90,16 @@ export default function BrowseBooksPage() {
     return matchesCategory && matchesSearch;
   });
 
+  const handleBookClick = (book: any) => {
+    setSelectedBook(book);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedBook(null);
+  };
+
   return (
     <StudentLayout activePage="Browse Books" headerTitle="Browse Books">
       <div className="mb-8 flex items-center justify-between">
@@ -112,9 +125,10 @@ export default function BrowseBooksPage() {
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {filteredBooks.map((book) => (
-          <BookCard key={book.id} book={book} />
+          <BookCard key={book.id} book={book} onClick={() => handleBookClick(book)} />
         ))}
       </div>
+      <BookDetailsModal open={isModalOpen} onOpenChange={setIsModalOpen} book={selectedBook} onFinished={handleModalClose} />
     </StudentLayout>
   );
 }
