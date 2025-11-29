@@ -1,10 +1,10 @@
 // app/(admin)/book-categories/page.tsx
 "use client";
 import AdminLayout from "@/components/AdminLayout";
+import CategoryModal from "@/components/CategoryModal";
+import { deleteCategory, getCategories } from "@/lib/services/categories";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getCategories, deleteCategory } from "@/lib/services/categories";
-import CategoryModal from "@/components/CategoryModal";
 
 export default function BookCategoriesPage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -78,8 +78,12 @@ export default function BookCategoriesPage() {
                 key={category.id}
                 className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50"
               >
-                <td className="p-4 font-medium text-gray-800">{category.name}</td>
-                <td className="p-4 text-gray-600">{new Date(category.created_at).toLocaleDateString()}</td>
+                <td className="p-4 font-medium text-gray-800">
+                  {category.name}
+                </td>
+                <td className="p-4 text-gray-600">
+                  {new Date(category.created_at).toLocaleDateString()}
+                </td>
                 <td className="p-4">
                   <div className="flex items-center gap-3">
                     <button

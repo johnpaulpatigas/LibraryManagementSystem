@@ -1,28 +1,31 @@
 "use client";
 import AdminLayout from "@/components/AdminLayout";
-import { Check } from "lucide-react"; // Using Check icon for "Mark as Paid"
+import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getTransactions, updateTransaction } from "@/lib/services/transactions";
+import {
+  getTransactions,
+  updateTransaction,
+} from "@/lib/services/transactions";
 
 type Transaction = {
   id: number;
   user_id: number;
-  user_name: string; // From join
+  user_name: string;
   issued_book_id: number;
-  book_name: string; // From join
+  book_name: string;
   type: string;
   amount: number;
   description: string;
-  status: 'paid' | 'unpaid'; // Assuming backend uses lowercase
+  status: "paid" | "unpaid";
   created_at: string;
 };
 
 type DisplayStatus = "Paid" | "Unpaid";
 
-const getDisplayStatus = (status: Transaction['status']): DisplayStatus => {
-  if (status === 'paid') return 'Paid';
-  if (status === 'unpaid') return 'Unpaid';
-  return 'Unpaid'; // Default
+const getDisplayStatus = (status: Transaction["status"]): DisplayStatus => {
+  if (status === "paid") return "Paid";
+  if (status === "unpaid") return "Unpaid";
+  return "Unpaid";
 };
 
 const StatusBadge = ({ status }: { status: DisplayStatus }) => {
@@ -62,21 +65,25 @@ export default function TransactionsPage() {
   }, []);
 
   const handleMarkAsPaid = async (transaction: Transaction) => {
-    if (transaction.status === 'unpaid' && window.confirm("Are you sure you want to mark this transaction as paid?")) {
+    if (
+      transaction.status === "unpaid" &&
+      window.confirm("Are you sure you want to mark this transaction as paid?")
+    ) {
       try {
-        // Need to send all required fields for update, even if only status is changing
-        // Assuming user_id, issued_book_id, type, amount, description are necessary and available in the transaction object
         await updateTransaction(transaction.id, {
           user_id: transaction.user_id,
           issued_book_id: transaction.issued_book_id,
           type: transaction.type,
           amount: transaction.amount,
           description: transaction.description,
-          status: 'paid',
+          status: "paid",
         });
-        fetchTransactions(); // Refresh the list
+        fetchTransactions();
       } catch (err: any) {
-        alert("Failed to mark transaction as paid: " + (err.message || "Unknown error"));
+        alert(
+          "Failed to mark transaction as paid: " +
+            (err.message || "Unknown error"),
+        );
         console.error("Failed to mark transaction as paid:", err);
       }
     }
@@ -176,9 +183,7 @@ export default function TransactionsPage() {
         <span className="mx-2 rounded-md bg-[#587878] px-3 py-1 text-white">
           1
         </span>
-        <button className="rounded-md px-3 py-1 hover:bg-gray-200">
-          Next
-        </button>
+        <button className="rounded-md px-3 py-1 hover:bg-gray-200">Next</button>
       </div>
     </AdminLayout>
   );

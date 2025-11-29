@@ -15,7 +15,7 @@ export const createIssuedBooksRouter = (pool: Pool) => {
         ib.issue_date,
         ib.due_date,
         ib.return_date,
-        ib.status AS issued_status,
+        ib.status,
         b.id AS book_id,
         b.title,
         b.description,
@@ -130,18 +130,39 @@ export const createIssuedBooksRouter = (pool: Pool) => {
     const { id } = req.params;
     const { return_date, status } = req.body;
     try {
-      const result = await pool.query(
-        "UPDATE issued_books SET return_date = $1, status = $2 WHERE id = $3 RETURNING *",
-        [return_date, status, id]
-      );
+      let query = "UPDATE issued_books SET ";
+      const queryParams: any[] = [];
+      const updates: string[] = [];
+      let paramIndex = 1;
+
+      if (return_date !== undefined) {
+        updates.push(`return_date = $${paramIndex++}`);
+        queryParams.push(return_date);
+      }
+      if (status !== undefined) {
+        updates.push(`status = $${paramIndex++}`);
+        queryParams.push(status);
+      }
+
+      if (updates.length === 0) {
+        return res.status(400).json({ error: "No fields to update." });
+      }
+
+      query += updates.join(", ") + ` WHERE id = $${paramIndex++} RETURNING *`;
+      queryParams.push(id);
+
+      const result = await pool.query(query, queryParams);
       if (result.rows.length === 0) {
         return res.status(404).json({ error: "Issued book not found." });
       }
 
       // If the book is returned, increment the available quantity
-      if (status === 'returned') {
+      if (status === "returned") {
         const issuedBook = result.rows[0];
-        await pool.query("UPDATE books SET available_quantity = available_quantity + 1 WHERE id = $1", [issuedBook.book_id]);
+        await pool.query(
+          "UPDATE books SET available_quantity = available_quantity + 1 WHERE id = $1",
+          [issuedBook.book_id]
+        );
       }
 
       res.json(result.rows[0]);

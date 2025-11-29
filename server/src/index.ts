@@ -12,6 +12,7 @@ import { createIssuedBooksRouter } from "./routes/issued_books";
 import { createBookRequestsRouter } from "./routes/book_requests";
 import { createTransactionsRouter } from "./routes/transactions";
 import { createInvoicesRouter } from "./routes/invoices";
+import { createSchema } from "./schema/schema";
 
 dotenv.config();
 
@@ -25,7 +26,13 @@ const pool = new Pool({
   },
 });
 
-app.use(cors());
+createSchema(pool);
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+  })
+);
 app.use(express.json());
 
 const authRouter = createAuthRouter(pool);

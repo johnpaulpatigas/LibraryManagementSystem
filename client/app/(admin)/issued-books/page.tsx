@@ -1,23 +1,22 @@
 "use client";
 import AdminLayout from "@/components/AdminLayout";
-import { History, Pencil } from "lucide-react"; // Changed Trash2 to History for return action
-import Image from "next/image";
-import { useEffect, useState } from "react";
 import { getIssuedBooks, updateIssuedBook } from "@/lib/services/issued_books";
 import { format } from "date-fns";
+import { History } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 type IssuedBook = {
   issued_book_id: number;
   issue_date: string;
   due_date: string;
   return_date: string | null;
-  issued_status: 'issued' | 'returned' | 'overdue';
+  issued_status: "issued" | "returned" | "overdue";
   book_id: number;
-  title: string; // Book title
+  title: string;
   isbn: string;
   user_id: number;
-  user_fullname: string; // Borrower name
-  // Derived/placeholder fields for display
+  user_fullname: string;
   bookName: string;
   borrower: string;
   fees: number;
@@ -27,18 +26,20 @@ type IssuedBook = {
 
 type DisplayStatus = "On-going" | "Returned" | "Overdue";
 
-const getDisplayStatus = (status: IssuedBook['issued_status']): DisplayStatus => {
-  if (status === 'issued') return 'On-going';
-  if (status === 'returned') return 'Returned';
-  if (status === 'overdue') return 'Overdue';
-  return 'On-going'; // Default
+const getDisplayStatus = (
+  status: IssuedBook["issued_status"],
+): DisplayStatus => {
+  if (status === "issued") return "On-going";
+  if (status === "returned") return "Returned";
+  if (status === "overdue") return "Overdue";
+  return "On-going";
 };
 
 const StatusBadge = ({ status }: { status: DisplayStatus }) => {
   const statusStyles = {
     "On-going": "bg-green-500 text-white",
-    "Returned": "bg-blue-500 text-white",
-    "Overdue": "bg-red-500 text-white",
+    Returned: "bg-blue-500 text-white",
+    Overdue: "bg-red-500 text-white",
   };
   return (
     <span
@@ -69,11 +70,11 @@ export default function IssuedBooksAdminPage() {
         isbn: book.isbn,
         user_id: book.user_id,
         user_fullname: book.user_fullname,
-        bookName: book.title, // Use book title for bookName
-        borrower: book.user_fullname, // Use user_fullname for borrower
-        fees: 0, // Placeholder, actual fees logic would go here
-        toReturn: format(new Date(book.due_date), "dd/MM/yyyy"), // Format due_date
-        imageUrl: "/file.svg", // Placeholder image
+        bookName: book.title,
+        borrower: book.user_fullname,
+        fees: 0,
+        toReturn: format(new Date(book.due_date), "dd/MM/yyyy"),
+        imageUrl: "/file.svg",
       }));
       setIssuedBooks(formattedBooks);
     } catch (err: any) {
@@ -89,11 +90,13 @@ export default function IssuedBooksAdminPage() {
   }, []);
 
   const handleReturnBook = async (id: number) => {
-    if (window.confirm("Are you sure you want to mark this book as returned?")) {
+    if (
+      window.confirm("Are you sure you want to mark this book as returned?")
+    ) {
       try {
         await updateIssuedBook(id, {
           return_date: new Date().toISOString(),
-          status: 'returned',
+          status: "returned",
         });
         fetchIssuedBooks(); // Refresh the list
       } catch (err: any) {
@@ -183,7 +186,7 @@ export default function IssuedBooksAdminPage() {
                 </td>
                 <td className="p-4">
                   <div className="flex items-center gap-3">
-                    {book.issued_status !== 'returned' && (
+                    {book.issued_status !== "returned" && (
                       <button
                         onClick={() => handleReturnBook(book.issued_book_id)}
                         className="flex items-center gap-1 text-green-600 hover:text-green-800"

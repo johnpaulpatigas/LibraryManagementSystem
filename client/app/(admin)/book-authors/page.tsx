@@ -1,10 +1,10 @@
 // app/admin)/book-authors/page.tsx
 "use client";
 import AdminLayout from "@/components/AdminLayout";
+import AuthorModal from "@/components/AuthorModal";
+import { deleteAuthor, getAuthors } from "@/lib/services/authors";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getAuthors, deleteAuthor } from "@/lib/services/authors";
-import AuthorModal from "@/components/AuthorModal";
 
 export default function BookAuthorsPage() {
   const [authors, setAuthors] = useState<any[]>([]);
@@ -79,7 +79,9 @@ export default function BookAuthorsPage() {
                 className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50"
               >
                 <td className="p-4 font-medium text-gray-800">{author.name}</td>
-                <td className="p-4 text-gray-600">{new Date(author.created_at).toLocaleDateString()}</td>
+                <td className="p-4 text-gray-600">
+                  {new Date(author.created_at).toLocaleDateString()}
+                </td>
                 <td className="p-4">
                   <div className="flex items-center gap-3">
                     <button

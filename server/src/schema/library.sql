@@ -61,6 +61,7 @@ CREATE TABLE transactions (
     type VARCHAR(20) NOT NULL, -- fine, payment
     amount DECIMAL(10, 2) NOT NULL,
     description TEXT,
+    status VARCHAR(20) NOT NULL DEFAULT 'unpaid', -- unpaid, paid
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
