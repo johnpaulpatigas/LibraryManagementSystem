@@ -6,7 +6,6 @@ import { getProfile } from "@/lib/services/auth";
 import { getBooks } from "@/lib/services/books";
 import { getIssuedBooks } from "@/lib/services/issued_books";
 import { getBookRequests } from "@/lib/services/book_requests";
-import { getInvoices } from "@/lib/services/invoices";
 
 type StatItemProps = {
   label: string;
@@ -55,7 +54,6 @@ export default function StudentDashboardPage() {
     books: { total: 0, available: 0, inactive: 0 },
     issuedBooks: { ongoing: 0, returned: 0, overdue: 0 },
     bookRequests: { approved: 0, pending: 0, rejected: 0 },
-    invoices: { paid: 0, unpaid: 0 },
   });
 
   useEffect(() => {
@@ -66,13 +64,11 @@ export default function StudentDashboardPage() {
           booksRes,
           issuedBooksRes,
           bookRequestsRes,
-          invoicesRes,
         ] = await Promise.all([
           getProfile(),
           getBooks(),
           getIssuedBooks(),
           getBookRequests(),
-          getInvoices(),
         ]);
 
         setUserName(profileRes.data.fullname || "User");
@@ -80,7 +76,6 @@ export default function StudentDashboardPage() {
         const books = booksRes.data;
         const issuedBooks = issuedBooksRes.data;
         const bookRequests = bookRequestsRes.data;
-        const invoices = invoicesRes.data;
 
         setStats({
           books: {
@@ -89,18 +84,14 @@ export default function StudentDashboardPage() {
             inactive: books.filter((b: any) => b.available_quantity === 0).length,
           },
           issuedBooks: {
-            ongoing: issuedBooks.filter((ib: any) => ib.issued_status === "issued").length,
-                        returned: issuedBooks.filter((ib: any) => ib.issued_status === "returned").length,
-                        overdue: issuedBooks.filter((ib: any) => ib.issued_status === "overdue").length,
+            ongoing: issuedBooks.filter((ib: any) => ib.status === "issued").length,
+                        returned: issuedBooks.filter((ib: any) => ib.status === "returned").length,
+                        overdue: issuedBooks.filter((ib: any) => ib.status === "overdue").length,
           },
           bookRequests: {
                         approved: bookRequests.filter((br: any) => br.status === "approved").length,
                                     pending: bookRequests.filter((br: any) => br.status === "pending").length,
                                     rejected: bookRequests.filter((br: any) => br.status === "rejected").length,
-          },
-          invoices: {
-            paid: invoices.filter((i: any) => i.status === "paid").length,
-            unpaid: invoices.filter((i: any) => i.status !== "paid").length,
           },
         });
       } catch (error) {
@@ -162,15 +153,6 @@ export default function StudentDashboardPage() {
           <StatItem
             label="Rejected:"
             value={stats.bookRequests.rejected}
-            color="red"
-          />
-        </StatCard>
-
-        <StatCard title="Invoice">
-          <StatItem label="Paid:" value={stats.invoices.paid} color="green" />
-          <StatItem
-            label="Unpaid:"
-            value={stats.invoices.unpaid}
             color="red"
           />
         </StatCard>

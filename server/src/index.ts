@@ -10,7 +10,6 @@ import { createAuthorsRouter } from "./routes/authors";
 import { createCategoriesRouter } from "./routes/categories";
 import { createIssuedBooksRouter } from "./routes/issued_books";
 import { createBookRequestsRouter } from "./routes/book_requests";
-import { createInvoicesRouter } from "./routes/invoices";
 import { createSchema } from "./schema/schema";
 
 dotenv.config();
@@ -41,7 +40,6 @@ const authorsRouter = createAuthorsRouter(pool);
 const categoriesRouter = createCategoriesRouter(pool);
 const issuedBooksRouter = createIssuedBooksRouter(pool);
 const bookRequestsRouter = createBookRequestsRouter(pool);
-const invoicesRouter = createInvoicesRouter(pool);
 
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
@@ -50,7 +48,6 @@ app.use("/api/authors", authorsRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/issued-books", issuedBooksRouter);
 app.use("/api/book-requests", bookRequestsRouter);
-app.use("/api/invoices", invoicesRouter);
 
 app.get("/", (req, res) => {
   res.send("Library API is running!");

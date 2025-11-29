@@ -24,7 +24,7 @@ const navItems = [
   { name: "Browse Books", href: "/browse" },
   { name: "Book Request", href: "/s-book-request" },
   { name: "Issued Books", href: "/my-books" },
-  { name: "Invoices", href: "/invoices" },
+
 ];
 
 export const StudentSidebar = ({ activePage }: { activePage: string }) => {
