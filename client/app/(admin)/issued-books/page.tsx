@@ -1,96 +1,44 @@
-// app/(admin)/issued-books/page.tsx
 "use client";
 import AdminLayout from "@/components/AdminLayout";
-import { Pencil, Trash2 } from "lucide-react";
+import { History, Pencil } from "lucide-react"; // Changed Trash2 to History for return action
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { getIssuedBooks, updateIssuedBook } from "@/lib/services/issued_books";
+import { format } from "date-fns";
 
-const issuedBooksData = [
-  {
-    id: 1,
-    issuedId: 1,
-    borrower: "John Doe",
-    bookName: "A Midsummer Night's Dream",
-    fees: 10,
-    toReturn: "26/11/2025",
-    status: "Approved",
-    imageUrl:
-      "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1606142232l/11139.jpg",
-  },
-  {
-    id: 2,
-    issuedId: 2,
-    borrower: "John Doe",
-    bookName: "Call me by Your Name",
-    fees: 10,
-    toReturn: "26/11/2025",
-    status: "Approved",
-    imageUrl:
-      "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1490216556l/34884922.jpg",
-  },
-  {
-    id: 3,
-    issuedId: 3,
-    borrower: "John Doe",
-    bookName: "Paradise Lost",
-    fees: 10,
-    toReturn: "26/11/2025",
-    status: "Approved",
-    imageUrl:
-      "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1657613854l/15998.jpg",
-  },
-  {
-    id: 4,
-    issuedId: 4,
-    borrower: "John Doe",
-    bookName: "5 Feet Apart",
-    fees: 10,
-    toReturn: "26/11/2025",
-    status: "On-going",
-    imageUrl:
-      "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1522223067l/39939417.jpg",
-  },
-  {
-    id: 5,
-    issuedId: 5,
-    borrower: "John Doe",
-    bookName: "Call me by Your Name",
-    fees: 10,
-    toReturn: "26/11/2025",
-    status: "On-going",
-    imageUrl:
-      "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1490216556l/34884922.jpg",
-  },
-  {
-    id: 6,
-    issuedId: 6,
-    borrower: "John Doe",
-    bookName: "Young Hearts",
-    fees: 10,
-    toReturn: "26/11/2025",
-    status: "Overdue",
-    imageUrl:
-      "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1685878393l/150244831.jpg",
-  },
-  {
-    id: 7,
-    issuedId: 7,
-    borrower: "John Doe",
-    bookName: "Paradise Lost",
-    fees: 10,
-    toReturn: "26/11/2025",
-    status: "Overdue",
-    imageUrl:
-      "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1657613854l/15998.jpg",
-  },
-];
+type IssuedBook = {
+  issued_book_id: number;
+  issue_date: string;
+  due_date: string;
+  return_date: string | null;
+  issued_status: 'issued' | 'returned' | 'overdue';
+  book_id: number;
+  title: string; // Book title
+  isbn: string;
+  user_id: number;
+  user_fullname: string; // Borrower name
+  // Derived/placeholder fields for display
+  bookName: string;
+  borrower: string;
+  fees: number;
+  toReturn: string;
+  imageUrl: string;
+};
 
-type Status = "Approved" | "On-going" | "Overdue";
+type DisplayStatus = "On-going" | "Returned" | "Overdue";
 
-const StatusBadge = ({ status }: { status: Status }) => {
+const getDisplayStatus = (status: IssuedBook['issued_status']): DisplayStatus => {
+  if (status === 'issued') return 'On-going';
+  if (status === 'returned') return 'Returned';
+  if (status === 'overdue') return 'Overdue';
+  return 'On-going'; // Default
+};
+
+const StatusBadge = ({ status }: { status: DisplayStatus }) => {
   const statusStyles = {
-    Approved: "bg-green-500 text-white",
-    "On-going": "bg-orange-400 text-white",
-    Overdue: "bg-red-500 text-white",
+    "On-going": "bg-green-500 text-white",
+    "Returned": "bg-blue-500 text-white",
+    "Overdue": "bg-red-500 text-white",
   };
   return (
     <span
@@ -102,6 +50,75 @@ const StatusBadge = ({ status }: { status: Status }) => {
 };
 
 export default function IssuedBooksAdminPage() {
+  const [issuedBooks, setIssuedBooks] = useState<IssuedBook[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchIssuedBooks = async () => {
+    try {
+      setLoading(true);
+      const response = await getIssuedBooks();
+      const formattedBooks: IssuedBook[] = response.data.map((book: any) => ({
+        issued_book_id: book.issued_book_id,
+        issue_date: book.issue_date,
+        due_date: book.due_date,
+        return_date: book.return_date,
+        issued_status: book.issued_status,
+        book_id: book.book_id,
+        title: book.title,
+        isbn: book.isbn,
+        user_id: book.user_id,
+        user_fullname: book.user_fullname,
+        bookName: book.title, // Use book title for bookName
+        borrower: book.user_fullname, // Use user_fullname for borrower
+        fees: 0, // Placeholder, actual fees logic would go here
+        toReturn: format(new Date(book.due_date), "dd/MM/yyyy"), // Format due_date
+        imageUrl: "/file.svg", // Placeholder image
+      }));
+      setIssuedBooks(formattedBooks);
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch issued books.");
+      console.error("Failed to fetch issued books:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchIssuedBooks();
+  }, []);
+
+  const handleReturnBook = async (id: number) => {
+    if (window.confirm("Are you sure you want to mark this book as returned?")) {
+      try {
+        await updateIssuedBook(id, {
+          return_date: new Date().toISOString(),
+          status: 'returned',
+        });
+        fetchIssuedBooks(); // Refresh the list
+      } catch (err: any) {
+        alert("Failed to return book: " + (err.message || "Unknown error"));
+        console.error("Failed to return book:", err);
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <AdminLayout activePage="Issued Books">
+        <div className="text-center text-gray-600">Loading issued books...</div>
+      </AdminLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <AdminLayout activePage="Issued Books">
+        <div className="text-center text-red-600">Error: {error}</div>
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout activePage="Issued Books">
       <div className="mb-6 flex items-center justify-between">
@@ -134,19 +151,18 @@ export default function IssuedBooksAdminPage() {
               <th className="p-4 font-semibold">Issued #</th>
               <th className="p-4 font-semibold">Borrower</th>
               <th className="p-4 font-semibold">Book Name</th>
-              <th className="p-4 font-semibold">Fees</th>
-              <th className="p-4 font-semibold">To Return</th>
+              <th className="p-4 font-semibold">Due Date</th>
               <th className="p-4 font-semibold">Status</th>
               <th className="p-4 font-semibold">Action</th>
             </tr>
           </thead>
           <tbody>
-            {issuedBooksData.map((book) => (
+            {issuedBooks.map((book) => (
               <tr
-                key={book.id}
+                key={book.issued_book_id}
                 className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50"
               >
-                <td className="p-4 text-gray-800">{book.id}</td>
+                <td className="p-4 text-gray-800">{book.issued_book_id}</td>
                 <td className="p-4">
                   <Image
                     src={book.imageUrl}
@@ -156,26 +172,27 @@ export default function IssuedBooksAdminPage() {
                     className="rounded-md object-cover"
                   />
                 </td>
-                <td className="p-4 text-gray-800">{book.issuedId}</td>
+                <td className="p-4 text-gray-800">{book.issued_book_id}</td>
                 <td className="p-4 text-gray-600">{book.borrower}</td>
                 <td className="p-4 font-medium text-gray-800">
                   {book.bookName}
                 </td>
-                <td className="p-4 text-gray-600">{book.fees}</td>
                 <td className="p-4 text-gray-600">{book.toReturn}</td>
                 <td className="p-4">
-                  <StatusBadge status={book.status as Status} />
+                  <StatusBadge status={getDisplayStatus(book.issued_status)} />
                 </td>
                 <td className="p-4">
                   <div className="flex items-center gap-3">
-                    {book.status !== "Approved" && (
-                      <button className="text-gray-500 hover:text-blue-600">
-                        <Pencil className="h-5 w-5" />
+                    {book.issued_status !== 'returned' && (
+                      <button
+                        onClick={() => handleReturnBook(book.issued_book_id)}
+                        className="flex items-center gap-1 text-green-600 hover:text-green-800"
+                        title="Mark as Returned"
+                      >
+                        <History className="h-5 w-5" />
+                        <span className="text-sm">Return</span>
                       </button>
                     )}
-                    <button className="text-gray-500 hover:text-red-600">
-                      <Trash2 className="h-5 w-5" />
-                    </button>
                   </div>
                 </td>
               </tr>

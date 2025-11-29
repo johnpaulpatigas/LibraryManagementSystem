@@ -25,11 +25,11 @@ export const createIssuedBooksRouter = (pool: Pool) => {
         u.id AS user_id,
         u.fullname AS user_fullname,
         COALESCE(
-          json_agg(DISTINCT jsonb_build_object('id', a.id, 'name', a.name)) FILTER (WHERE a.id IS NOT NULL),
+          json_agg(DISTINCT jsonb_build_object('id', a.id, 'name', a.name)),
           '[]'
         ) AS authors,
         COALESCE(
-          json_agg(DISTINCT jsonb_build_object('id', c.id, 'name', c.name)) FILTER (WHERE c.id IS NOT NULL),
+          json_agg(DISTINCT jsonb_build_object('id', c.id, 'name', c.name)),
           '[]'
         ) AS categories
       FROM
