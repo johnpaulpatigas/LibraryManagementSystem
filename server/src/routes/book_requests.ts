@@ -52,12 +52,34 @@ export const createBookRequestsRouter = (pool: Pool) => {
   // Update a book request
   router.put("/:id", async (req, res) => {
     const { id } = req.params;
-    const { status } = req.body;
+    const { book_title, author_name, status } = req.body;
     try {
-      const result = await pool.query(
-        "UPDATE book_requests SET status = $1 WHERE id = $2 RETURNING *",
-        [status, id]
-      );
+      let query = "UPDATE book_requests SET ";
+      const queryParams: any[] = [];
+      const updates: string[] = [];
+      let paramIndex = 1;
+
+      if (book_title !== undefined) {
+        updates.push(`book_title = $${paramIndex++}`);
+        queryParams.push(book_title);
+      }
+      if (author_name !== undefined) {
+        updates.push(`author_name = $${paramIndex++}`);
+        queryParams.push(author_name);
+      }
+      if (status !== undefined) {
+        updates.push(`status = $${paramIndex++}`);
+        queryParams.push(status);
+      }
+
+      if (updates.length === 0) {
+        return res.status(400).json({ error: "No fields to update." });
+      }
+
+      query += updates.join(", ") + ` WHERE id = $${paramIndex++} RETURNING *`;
+      queryParams.push(id);
+
+      const result = await pool.query(query, queryParams);
       if (result.rows.length === 0) {
         return res.status(404).json({ error: "Book request not found." });
       }
