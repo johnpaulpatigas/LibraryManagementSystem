@@ -10,7 +10,6 @@ import { createAuthorsRouter } from "./routes/authors";
 import { createCategoriesRouter } from "./routes/categories";
 import { createIssuedBooksRouter } from "./routes/issued_books";
 import { createBookRequestsRouter } from "./routes/book_requests";
-import { createTransactionsRouter } from "./routes/transactions";
 import { createInvoicesRouter } from "./routes/invoices";
 import { createSchema } from "./schema/schema";
 
@@ -42,7 +41,6 @@ const authorsRouter = createAuthorsRouter(pool);
 const categoriesRouter = createCategoriesRouter(pool);
 const issuedBooksRouter = createIssuedBooksRouter(pool);
 const bookRequestsRouter = createBookRequestsRouter(pool);
-const transactionsRouter = createTransactionsRouter(pool);
 const invoicesRouter = createInvoicesRouter(pool);
 
 app.use("/api/auth", authRouter);
@@ -52,7 +50,6 @@ app.use("/api/authors", authorsRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/issued-books", issuedBooksRouter);
 app.use("/api/book-requests", bookRequestsRouter);
-app.use("/api/transactions", transactionsRouter);
 app.use("/api/invoices", invoicesRouter);
 
 app.get("/", (req, res) => {
