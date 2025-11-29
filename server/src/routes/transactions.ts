@@ -11,7 +11,29 @@ export const createTransactionsRouter = (pool: Pool) => {
   // Get all transactions (admin only)
   router.get("/", adminMiddleware, async (req, res) => {
     try {
-      const result = await pool.query("SELECT * FROM transactions");
+      const result = await pool.query(`
+        SELECT
+          t.id,
+          t.user_id,
+          u.fullname AS user_name,
+          t.issued_book_id,
+          b.title AS book_name,
+          t.type,
+          t.amount,
+          t.description,
+          t.status, -- Assuming 'status' column exists in transactions table
+          t.created_at
+        FROM
+          transactions t
+        JOIN
+          users u ON t.user_id = u.id
+        LEFT JOIN
+          issued_books ib ON t.issued_book_id = ib.id
+        LEFT JOIN
+          books b ON ib.book_id = b.id
+        ORDER BY
+          t.created_at DESC
+      `);
       res.json(result.rows);
     } catch (error) {
       console.error(error);
@@ -56,11 +78,11 @@ export const createTransactionsRouter = (pool: Pool) => {
   // Update a transaction (admin only)
   router.put("/:id", adminMiddleware, async (req, res) => {
     const { id } = req.params;
-    const { user_id, issued_book_id, type, amount, description } = req.body;
+    const { user_id, issued_book_id, type, amount, description, status } = req.body;
     try {
       const result = await pool.query(
-        "UPDATE transactions SET user_id = $1, issued_book_id = $2, type = $3, amount = $4, description = $5 WHERE id = $6 RETURNING *",
-        [user_id, issued_book_id, type, amount, description, id]
+        "UPDATE transactions SET user_id = $1, issued_book_id = $2, type = $3, amount = $4, description = $5, status = $6 WHERE id = $7 RETURNING *",
+        [user_id, issued_book_id, type, amount, description, status, id]
       );
       if (result.rows.length === 0) {
         return res.status(404).json({ error: "Transaction not found." });
