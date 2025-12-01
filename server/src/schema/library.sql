@@ -1,40 +1,41 @@
 -- src/schema/library.sql
 
-CREATE TABLE authors (
+CREATE TABLE IF NOT EXISTS authors (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE books (
+CREATE TABLE IF NOT EXISTS books (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     isbn VARCHAR(20) UNIQUE,
     quantity INTEGER NOT NULL DEFAULT 1,
     available_quantity INTEGER NOT NULL DEFAULT 1,
+    image_url VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE book_authors (
+CREATE TABLE IF NOT EXISTS book_authors (
     book_id INTEGER REFERENCES books(id) ON DELETE CASCADE,
     author_id INTEGER REFERENCES authors(id) ON DELETE CASCADE,
     PRIMARY KEY (book_id, author_id)
 );
 
-CREATE TABLE book_categories (
+CREATE TABLE IF NOT EXISTS book_categories (
     book_id INTEGER REFERENCES books(id) ON DELETE CASCADE,
     category_id INTEGER REFERENCES categories(id) ON DELETE CASCADE,
     PRIMARY KEY (book_id, category_id)
 );
 
-CREATE TABLE book_requests (
+CREATE TABLE IF NOT EXISTS book_requests (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     book_title VARCHAR(255) NOT NULL,
@@ -43,7 +44,7 @@ CREATE TABLE book_requests (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE issued_books (
+CREATE TABLE IF NOT EXISTS issued_books (
     id SERIAL PRIMARY KEY,
     book_id INTEGER REFERENCES books(id) ON DELETE CASCADE,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -51,5 +52,6 @@ CREATE TABLE issued_books (
     due_date TIMESTAMP WITH TIME ZONE NOT NULL,
     return_date TIMESTAMP WITH TIME ZONE,
     status VARCHAR(20) NOT NULL DEFAULT 'issued', -- issued, returned, overdue
+    acknowledged_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

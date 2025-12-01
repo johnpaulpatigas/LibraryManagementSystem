@@ -2,8 +2,9 @@
 "use client";
 import AdminLayout from "@/components/AdminLayout";
 import BookModal from "@/components/BookModal";
-import { deleteBook, getBooks } from "@/lib/services/books";
+import { deleteBook, getAllBooks } from "@/lib/services/books";
 import { Pencil, Plus, Trash2 } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export default function ManageBooksPage() {
@@ -13,7 +14,7 @@ export default function ManageBooksPage() {
 
   const fetchBooks = async () => {
     try {
-      const response = await getBooks();
+      const response = await getAllBooks();
       setBooks(response.data);
     } catch (error) {
       console.error("Failed to fetch books:", error);
@@ -67,7 +68,10 @@ export default function ManageBooksPage() {
         <table className="w-full text-left">
           <thead className="bg-[#587878] text-white">
             <tr>
+              <th className="p-4 font-semibold">Image</th>
               <th className="p-4 font-semibold">Title</th>
+              <th className="p-4 font-semibold">Author</th>
+              <th className="p-4 font-semibold">Category</th>
               <th className="p-4 font-semibold">ISBN</th>
               <th className="p-4 font-semibold">Quantity</th>
               <th className="p-4 font-semibold">Available</th>
@@ -80,7 +84,18 @@ export default function ManageBooksPage() {
                 key={book.id}
                 className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50"
               >
+                <td className="p-4">
+                  <Image
+                    src={book.image_url || "/file.svg"}
+                    alt={book.title}
+                    width={40}
+                    height={60}
+                    className="rounded-md object-cover"
+                  />
+                </td>
                 <td className="p-4 font-medium text-gray-800">{book.title}</td>
+                <td className="p-4 text-gray-600">{book.authors?.map((a: any) => a.name).join(", ") || "Unknown"}</td>
+                <td className="p-4 text-gray-600">{book.categories?.map((c: any) => c.name).join(", ") || "Unknown"}</td>
                 <td className="p-4 text-gray-600">{book.isbn}</td>
                 <td className="p-4 text-gray-800">{book.quantity}</td>
                 <td className="p-4 text-gray-800">{book.available_quantity}</td>

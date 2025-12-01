@@ -11,7 +11,8 @@ type IssuedBook = {
   issue_date: string;
   due_date: string;
   return_date: string | null;
-  issued_status: "issued" | "returned" | "overdue";
+  status: "issued" | "returned"; // Changed from issued_status
+  is_overdue: boolean; // Added is_overdue
   book_id: number;
   title: string;
   isbn: string;
@@ -22,16 +23,17 @@ type IssuedBook = {
   fees: number;
   toReturn: string;
   imageUrl: string;
+  acknowledged_at: string | null;
 };
 
 type DisplayStatus = "On-going" | "Returned" | "Overdue";
 
 const getDisplayStatus = (
-  status: IssuedBook["issued_status"],
+  status: IssuedBook["status"],
+  isOverdue: boolean,
 ): DisplayStatus => {
-  if (status === "issued") return "On-going";
   if (status === "returned") return "Returned";
-  if (status === "overdue") return "Overdue";
+  if (isOverdue) return "Overdue";
   return "On-going";
 };
 
@@ -64,7 +66,8 @@ export default function IssuedBooksAdminPage() {
         issue_date: book.issue_date,
         due_date: book.due_date,
         return_date: book.return_date,
-        issued_status: book.issued_status,
+        status: book.status, // Changed from issued_status
+        is_overdue: book.is_overdue, // Added is_overdue
         book_id: book.book_id,
         title: book.title,
         isbn: book.isbn,
@@ -74,7 +77,8 @@ export default function IssuedBooksAdminPage() {
         borrower: book.user_fullname,
         fees: 0,
         toReturn: format(new Date(book.due_date), "dd/MM/yyyy"),
-        imageUrl: "/file.svg",
+        imageUrl: book.image_url || "/file.svg",
+        acknowledged_at: book.acknowledged_at,
       }));
       setIssuedBooks(formattedBooks);
     } catch (err: any) {
@@ -89,19 +93,19 @@ export default function IssuedBooksAdminPage() {
     fetchIssuedBooks();
   }, []);
 
-  const handleReturnBook = async (id: number) => {
+  const handleAcknowledgeReturn = async (id: number) => {
     if (
-      window.confirm("Are you sure you want to mark this book as returned?")
+      window.confirm("Are you sure you want to acknowledge the return of this book?")
     ) {
       try {
         await updateIssuedBook(id, {
-          return_date: new Date().toISOString(),
           status: "returned",
+          return_date: new Date().toISOString(),
         });
         fetchIssuedBooks(); // Refresh the list
       } catch (err: any) {
-        alert("Failed to return book: " + (err.message || "Unknown error"));
-        console.error("Failed to return book:", err);
+        alert("Failed to acknowledge return: " + (err.message || "Unknown error"));
+        console.error("Failed to acknowledge return:", err);
       }
     }
   };
@@ -182,18 +186,21 @@ export default function IssuedBooksAdminPage() {
                 </td>
                 <td className="p-4 text-gray-600">{book.toReturn}</td>
                 <td className="p-4">
-                  <StatusBadge status={getDisplayStatus(book.issued_status)} />
+                  <StatusBadge status={getDisplayStatus(book.status, book.is_overdue)} />
                 </td>
                 <td className="p-4">
                   <div className="flex items-center gap-3">
-                    {book.issued_status !== "returned" && (
+                    {book.status === "returned" && (
                       <button
-                        onClick={() => handleReturnBook(book.issued_book_id)}
+                        onClick={() => handleAcknowledgeReturn(book.issued_book_id)}
                         className="flex items-center gap-1 text-green-600 hover:text-green-800"
-                        title="Mark as Returned"
+                        title="Acknowledge Return"
+                        disabled={!!book.acknowledged_at}
                       >
                         <History className="h-5 w-5" />
-                        <span className="text-sm">Return</span>
+                        <span className="text-sm">
+                          {book.acknowledged_at ? "Acknowledged" : "Acknowledge Return"}
+                        </span>
                       </button>
                     )}
                   </div>

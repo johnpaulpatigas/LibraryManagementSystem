@@ -89,7 +89,7 @@ export const createUsersRouter = (pool: Pool) => {
   // Get all users (admin only)
   router.get("/", adminMiddleware, async (req, res) => {
     try {
-      const result = await pool.query("SELECT id, fullname, student_id, email, role FROM users");
+      const result = await pool.query("SELECT id, fullname, student_id, email, role, created_at FROM users");
       res.json(result.rows);
     } catch (error) {
       console.error(error);

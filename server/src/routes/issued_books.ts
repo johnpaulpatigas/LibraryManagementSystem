@@ -1,7 +1,7 @@
-// src/routes/issued_books.ts
 import { Router } from "express";
 import { Pool } from "pg";
 import { authMiddleware } from "../middleware/authMiddleware";
+import { adminMiddleware } from "../middleware/adminMiddleware";
 
 export const createIssuedBooksRouter = (pool: Pool) => {
   const router = Router();
@@ -16,12 +16,15 @@ export const createIssuedBooksRouter = (pool: Pool) => {
         ib.due_date,
         ib.return_date,
         ib.status,
+        ib.acknowledged_at,
+        (ib.status = 'issued' AND ib.due_date < NOW()) AS is_overdue,
         b.id AS book_id,
         b.title,
         b.description,
         b.isbn,
         b.quantity,
         b.available_quantity,
+        b.image_url,
         u.id AS user_id,
         u.fullname AS user_fullname,
         COALESCE(
@@ -130,6 +133,16 @@ export const createIssuedBooksRouter = (pool: Pool) => {
     const { id } = req.params;
     const { return_date, status } = req.body;
     try {
+      const issuedBookResult = await pool.query("SELECT * FROM issued_books WHERE id = $1", [id]);
+      if (issuedBookResult.rows.length === 0) {
+        return res.status(404).json({ error: "Issued book not found." });
+      }
+      const issuedBook = issuedBookResult.rows[0];
+
+      if (req.user?.role !== "admin" && issuedBook.user_id !== req.user?.userId) {
+        return res.status(403).json({ error: "Forbidden: You can only update your own issued books." });
+      }
+
       let query = "UPDATE issued_books SET ";
       const queryParams: any[] = [];
       const updates: string[] = [];
@@ -144,6 +157,10 @@ export const createIssuedBooksRouter = (pool: Pool) => {
         queryParams.push(status);
       }
 
+      if (status === "returned" && req.user?.role === "admin") {
+        updates.push(`acknowledged_at = NOW()`);
+      }
+
       if (updates.length === 0) {
         return res.status(400).json({ error: "No fields to update." });
       }
@@ -156,12 +173,11 @@ export const createIssuedBooksRouter = (pool: Pool) => {
         return res.status(404).json({ error: "Issued book not found." });
       }
 
-      // If the book is returned, increment the available quantity
-      if (status === "returned") {
-        const issuedBook = result.rows[0];
+      if (status === "returned" && req.user?.role === "admin") {
+        const returnedBook = result.rows[0];
         await pool.query(
           "UPDATE books SET available_quantity = available_quantity + 1 WHERE id = $1",
-          [issuedBook.book_id]
+          [returnedBook.book_id]
         );
       }
 

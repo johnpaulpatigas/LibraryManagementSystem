@@ -84,9 +84,9 @@ export default function StudentDashboardPage() {
             inactive: books.filter((b: any) => b.available_quantity === 0).length,
           },
           issuedBooks: {
-            ongoing: issuedBooks.filter((ib: any) => ib.status === "issued").length,
+            ongoing: issuedBooks.filter((ib: any) => ib.status === "issued" && !ib.is_overdue).length,
                         returned: issuedBooks.filter((ib: any) => ib.status === "returned").length,
-                        overdue: issuedBooks.filter((ib: any) => ib.status === "overdue").length,
+                        overdue: issuedBooks.filter((ib: any) => ib.is_overdue).length,
           },
           bookRequests: {
                         approved: bookRequests.filter((br: any) => br.status === "approved").length,

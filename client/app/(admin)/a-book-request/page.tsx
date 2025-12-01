@@ -18,9 +18,6 @@ type BookRequest = {
   status: "pending" | "approved" | "rejected";
   borrower?: string;
   issuedId?: number;
-  fees?: number;
-  toReturn?: string;
-  imageUrl?: string;
 };
 
 type Status = "approved" | "pending" | "rejected";
@@ -59,11 +56,7 @@ export default function BookRequestAdminPage() {
           book_title: req.book_title,
           author_name: req.author_name,
           status: req.status,
-          borrower: "N/A",
-          issuedId: req.id,
-          fees: 0,
-          toReturn: "N/A",
-          imageUrl: "/file.svg",
+          borrower: req.user_fullname,
         }),
       );
       setBookRequests(formattedRequests);
@@ -154,13 +147,9 @@ export default function BookRequestAdminPage() {
           <thead className="bg-[#7A9999] text-white">
             <tr>
               <th className="p-4 font-semibold">No.</th>
-              <th className="p-4 font-semibold">Image</th>
-              <th className="p-4 font-semibold">Issued #</th>
               <th className="p-4 font-semibold">Borrower</th>
               <th className="p-4 font-semibold">Book Title</th>
               <th className="p-4 font-semibold">Author Name</th>
-              <th className="p-4 font-semibold">Fees</th>
-              <th className="p-4 font-semibold">To Return</th>
               <th className="p-4 font-semibold">Status</th>
               <th className="p-4 font-semibold">Action</th>
             </tr>
@@ -172,23 +161,11 @@ export default function BookRequestAdminPage() {
                 className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50"
               >
                 <td className="p-4 text-gray-800">{req.id}</td>
-                <td className="p-4">
-                  <Image
-                    src={req.imageUrl || "/file.svg"}
-                    alt={req.book_title}
-                    width={40}
-                    height={60}
-                    className="rounded-md object-cover"
-                  />
-                </td>
-                <td className="p-4 text-gray-800">{req.issuedId}</td>
                 <td className="p-4 text-gray-600">{req.borrower}</td>
                 <td className="p-4 font-medium text-gray-800">
                   {req.book_title}
                 </td>
                 <td className="p-4 text-gray-600">{req.author_name}</td>
-                <td className="p-4 text-gray-600">{req.fees}</td>
-                <td className="p-4 text-gray-600">{req.toReturn}</td>
                 <td className="p-4">
                   <StatusBadge status={req.status as Status} />
                 </td>

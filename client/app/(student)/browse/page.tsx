@@ -17,14 +17,14 @@ const BookCard = ({ book, onClick }: { book: any, onClick: () => void }) => {
     // Add more categories and colors as needed
   };
 
-  const primaryCategory = book.categories && book.categories.length > 0 ? book.categories[0].name : "N/A";
-  const primaryAuthor = book.authors && book.authors.length > 0 ? book.authors[0].name : "N/A";
+  const primaryCategory = book.categories && book.categories.length > 0 ? book.categories[0].name : "Unknown";
+  const primaryAuthor = book.authors && book.authors.length > 0 ? book.authors[0].name : "Unknown";
 
   return (
     <div onClick={onClick} className="transform cursor-pointer overflow-hidden rounded-lg bg-[#EAE8E3] shadow-lg transition-transform duration-300 hover:-translate-y-1">
       <div className="relative h-48 w-full">
         <Image
-          src={book.imageUrl || `https://picsum.photos/seed/${book.id}/200/300`} // Placeholder image
+          src={book.image_url || `https://picsum.photos/seed/${book.id}/200/300`} // Use image_url or Placeholder image
           alt={`Cover of ${book.title}`}
           layout="fill"
           objectFit="cover"
@@ -124,9 +124,13 @@ export default function BrowseBooksPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {filteredBooks.map((book) => (
-          <BookCard key={book.id} book={book} onClick={() => handleBookClick(book)} />
-        ))}
+        {filteredBooks.length > 0 ? (
+          filteredBooks.map((book) => (
+            <BookCard key={book.id} book={book} onClick={() => handleBookClick(book)} />
+          ))
+        ) : (
+          <p className="col-span-full text-center text-gray-600">No available books found.</p>
+        )}
       </div>
       <BookDetailsModal open={isModalOpen} onOpenChange={setIsModalOpen} book={selectedBook} onFinished={handleModalClose} />
     </StudentLayout>

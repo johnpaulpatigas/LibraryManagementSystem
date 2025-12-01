@@ -9,17 +9,15 @@ export const createSchema = async (pool: Pool) => {
     "utf8"
   );
   const usersSchema = fs.readFileSync(path.join(__dirname, "users.sql"), "utf8");
+
   try {
+    console.log("Ensuring schema exists...");
     await pool.query(usersSchema);
     await pool.query(schema);
-    console.log("Schema created successfully.");
+    console.log("Schema ensured successfully.");
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message.includes("already exists")) {
-        console.log("Schema already exists.");
-      } else {
-        console.error("Error creating schema:", error);
-      }
+      console.error("Error during schema creation/update:", error);
     }
   }
 };

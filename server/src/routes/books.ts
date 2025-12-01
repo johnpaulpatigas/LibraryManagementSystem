@@ -17,6 +17,45 @@ export const createBooksRouter = (pool: Pool) => {
         b.isbn,
         b.quantity,
         b.available_quantity,
+        b.image_url,
+        b.created_at,
+        COALESCE(
+          json_agg(DISTINCT jsonb_build_object('id', a.id, 'name', a.name)) FILTER (WHERE a.id IS NOT NULL),
+          '[]'
+        ) AS authors,
+        COALESCE(
+          json_agg(DISTINCT jsonb_build_object('id', c.id, 'name', c.name)) FILTER (WHERE c.id IS NOT NULL),
+          '[]'
+        ) AS categories
+      FROM
+        books b
+      LEFT JOIN
+        book_authors ba ON b.id = ba.book_id
+      LEFT JOIN
+        authors a ON ba.author_id = a.id
+      LEFT JOIN
+        book_categories bc ON b.id = bc.book_id
+      LEFT JOIN
+        categories c ON bc.category_id = c.id
+      ${bookId ? "WHERE b.id = $1" : "WHERE b.available_quantity > 0"}
+      GROUP BY
+        b.id
+      ORDER BY
+        b.created_at DESC;
+    `;
+    return bookId ? pool.query(query, [bookId]) : pool.query(query);
+  };
+
+  const getAllBookWithDetails = async (bookId?: string) => {
+    const query = `
+      SELECT
+        b.id,
+        b.title,
+        b.description,
+        b.isbn,
+        b.quantity,
+        b.available_quantity,
+        b.image_url,
         b.created_at,
         COALESCE(
           json_agg(DISTINCT jsonb_build_object('id', a.id, 'name', a.name)) FILTER (WHERE a.id IS NOT NULL),
@@ -56,6 +95,17 @@ export const createBooksRouter = (pool: Pool) => {
     }
   });
 
+  router.get("/all", async (req, res) => {
+    try {
+      const result = await getAllBookWithDetails();
+      res.json(result.rows);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Server error fetching books." });
+    }
+  });
+
+
   // Get a single book by ID with authors and categories
   router.get("/:id", async (req, res) => {
     const { id } = req.params;
@@ -73,13 +123,22 @@ export const createBooksRouter = (pool: Pool) => {
 
   // Create a new book
   router.post("/", async (req, res) => {
-    const { title, description, isbn, quantity, available_quantity } = req.body;
+    const { title, description, isbn, quantity, available_quantity, image_url, author_id, category_id } = req.body;
     try {
       const result = await pool.query(
-        "INSERT INTO books (title, description, isbn, quantity, available_quantity) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-        [title, description, isbn, quantity, available_quantity]
+        "INSERT INTO books (title, description, isbn, quantity, available_quantity, image_url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+        [title, description, isbn, quantity, available_quantity, image_url]
       );
-      res.status(201).json(result.rows[0]);
+      const book = result.rows[0];
+      await pool.query(
+        "INSERT INTO book_authors (book_id, author_id) VALUES ($1, $2)",
+        [book.id, author_id]
+      );
+      await pool.query(
+        "INSERT INTO book_categories (book_id, category_id) VALUES ($1, $2)",
+        [book.id, category_id]
+      );
+      res.status(201).json(book);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Server error creating book." });
@@ -89,15 +148,31 @@ export const createBooksRouter = (pool: Pool) => {
   // Update a book
   router.put("/:id", async (req, res) => {
     const { id } = req.params;
-    const { title, description, isbn, quantity, available_quantity } = req.body;
+    const { title, description, isbn, quantity, available_quantity, image_url, author_id, category_id } = req.body;
     try {
       const result = await pool.query(
-        "UPDATE books SET title = $1, description = $2, isbn = $3, quantity = $4, available_quantity = $5 WHERE id = $6 RETURNING *",
-        [title, description, isbn, quantity, available_quantity, id]
+        "UPDATE books SET title = $1, description = $2, isbn = $3, quantity = $4, available_quantity = $5, image_url = $6 WHERE id = $7 RETURNING *",
+        [title, description, isbn, quantity, available_quantity, image_url, id]
       );
       if (result.rows.length === 0) {
         return res.status(404).json({ error: "Book not found." });
       }
+      await pool.query(
+        "DELETE FROM book_authors WHERE book_id = $1",
+        [id]
+      );
+      await pool.query(
+        "INSERT INTO book_authors (book_id, author_id) VALUES ($1, $2)",
+        [id, author_id]
+      );
+      await pool.query(
+        "DELETE FROM book_categories WHERE book_id = $1",
+        [id]
+      );
+      await pool.query(
+        "INSERT INTO book_categories (book_id, category_id) VALUES ($1, $2)",
+        [id, category_id]
+      );
       res.json(result.rows[0]);
     } catch (error) {
       console.error(error);

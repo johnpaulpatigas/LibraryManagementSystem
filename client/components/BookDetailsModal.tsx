@@ -11,17 +11,31 @@ import Image from "next/image";
 import { issueBook } from "@/lib/services/issued_books";
 import { useState } from "react";
 
-export default function BookDetailsModal({ open, onOpenChange, book, onFinished }: { open: boolean, onOpenChange: (open: boolean) => void, book: any, onFinished: () => void }) {
+export default function BookDetailsModal({
+  open,
+  onOpenChange,
+  book,
+  onFinished,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  book: any;
+  onFinished: () => void;
+}) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleBorrow = async () => {
     setIsLoading(true);
     try {
       const dueDate = new Date();
-      dueDate.setDate(dueDate.getDate() + 14); // Set due date to 14 days from now
+      dueDate.setDate(dueDate.getDate() + 14);
       await issueBook({
         book_id: book.id,
-        user_id: JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "{}").id,
+        user_id: JSON.parse(
+          localStorage.getItem("user") ||
+            sessionStorage.getItem("user") ||
+            "{}",
+        ).id,
         due_date: dueDate.toISOString(),
       });
       onFinished();
@@ -41,7 +55,10 @@ export default function BookDetailsModal({ open, onOpenChange, book, onFinished 
         <div className="flex flex-col gap-4">
           <div className="relative h-64 w-full">
             <Image
-              src={book?.imageUrl || `https://picsum.photos/seed/${book?.id}/400/600`}
+              src={
+                book?.image_url ||
+                `https://picsum.photos/seed/${book?.id}/400/600`
+              }
               alt={`Cover of ${book?.title}`}
               layout="fill"
               objectFit="cover"
@@ -49,8 +66,16 @@ export default function BookDetailsModal({ open, onOpenChange, book, onFinished 
             />
           </div>
           <div>
-            <p className="text-lg font-semibold">{book?.authors?.map((a: any) => a.name).join(", ")}</p>
-            <p className="text-sm text-gray-600">{book?.categories?.map((c: any) => c.name).join(", ")}</p>
+            <p className="text-lg font-semibold">
+              {book?.authors?.length > 0
+                ? book.authors.map((a: any) => a.name).join(", ")
+                : "No authors listed"}
+            </p>
+            <p className="text-sm text-gray-600">
+              {book?.categories?.length > 0
+                ? book.categories.map((c: any) => c.name).join(", ")
+                : "No categories listed"}
+            </p>
             <p className="mt-4">{book?.description}</p>
           </div>
           <Button onClick={handleBorrow} disabled={isLoading}>

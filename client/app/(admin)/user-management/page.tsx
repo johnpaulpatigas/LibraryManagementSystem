@@ -3,6 +3,7 @@
 import AdminLayout from "@/components/AdminLayout";
 import UserModal from "@/components/UserModal";
 import { deleteUser, getUsers } from "@/lib/services/users";
+import { format } from "date-fns";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -86,7 +87,7 @@ export default function UserManagementPage() {
                 <td className="p-4 text-gray-600">{user.email}</td>
                 <td className="p-4 text-gray-600">{user.role}</td>
                 <td className="p-4 text-gray-600">
-                  {new Date(user.created_at).toLocaleDateString()}
+                  {user.created_at ? format(new Date(user.created_at), "dd/MM/yyyy") : "N/A"}
                 </td>
                 <td className="p-4">
                   <div className="flex items-center gap-3">

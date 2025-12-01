@@ -2,7 +2,7 @@
 "use client";
 import AdminLayout from "@/components/AdminLayout";
 import { getAuthors } from "@/lib/services/authors";
-import { getBooks } from "@/lib/services/books";
+import { getAllBooks } from "@/lib/services/books";
 import { getCategories } from "@/lib/services/categories";
 import { getUsers } from "@/lib/services/users";
 import { useEffect, useState } from "react";
@@ -34,7 +34,7 @@ export default function ReworkedAdminDashboard() {
         const [usersRes, booksRes, authorsRes, categoriesRes] =
           await Promise.all([
             getUsers(),
-            getBooks(),
+            getAllBooks(),
             getAuthors(),
             getCategories(),
           ]);

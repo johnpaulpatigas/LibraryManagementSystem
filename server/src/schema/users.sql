@@ -1,5 +1,5 @@
 -- src/schema/users.sql
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     fullname VARCHAR(100) NOT NULL,
     student_id VARCHAR(20) UNIQUE NOT NULL,
