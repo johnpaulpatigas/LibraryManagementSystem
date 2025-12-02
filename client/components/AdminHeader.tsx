@@ -34,8 +34,7 @@ export const AdminHeader = () => {
       <div className="flex items-center gap-3">
         <Shield className="h-8 w-8" />
         <div>
-          <h1 className="text-xl font-bold">Group 3</h1>
-          <p className="text-xs">Admin</p>
+          <h1 className="text-xl font-bold">Admin</h1>
         </div>
       </div>
       <button

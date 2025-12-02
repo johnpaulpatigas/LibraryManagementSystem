@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Client Application
+
+This is the frontend of the Library Management System, a modern web application built with Next.js and React. It provides a rich, interactive user interface for both library administrators and students.
+
+## Tech Stack
+
+-   **Framework:** [Next.js](https://nextjs.org/) (using the App Router)
+-   **Language:** [TypeScript](https://www.typescriptlang.org/)
+-   **UI Library:** [React](https://react.dev/)
+-   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+-   **UI Components:** [Shadcn/ui](https://ui.shadcn.com/) - A collection of beautifully designed, accessible components.
+-   **Form Management:** [React Hook Form](https://react-hook-form.com/) for performant and flexible forms.
+-   **Schema Validation:** [Zod](https://zod.dev/) for type-safe data validation.
+-   **API Communication:** [Axios](https://axios-http.com/) for making HTTP requests to the backend server.
+-   **Linting:** [ESLint](https://eslint.org/) for code quality.
+-   **Formatting:** [Prettier](https://prettier.io/) for consistent code style.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+-   Node.js (v20.x or later)
+-   npm
+-   The [backend server](#) must be running and accessible.
+
+### 1. Installation
+
+Install the project dependencies from the `client/` directory:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Running the Application
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+-   **For development:**
+    ```bash
+    npm run dev
+    ```
+    This starts the Next.js development server, typically on `http://localhost:3000`. The application will automatically reload when you make changes to the code.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+-   **For production:**
+    ```bash
+    npm run build
+    npm start
+    ```
+    The `build` command creates an optimized production build of the application. The `start` command runs the built application.
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+This project uses the Next.js App Router, which organizes the application around directories and files within the `app/` folder.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+client/
+├── app/
+│   ├── (admin)/          # Admin-only routes and layout
+│   │   ├── a-dashboard/
+│   │   └── ...
+│   ├── (student)/        # Student-only routes and layout
+│   │   ├── browse/
+│   │   └── ...
+│   ├── login/            # Login page
+│   ├── layout.tsx        # Root layout for the application
+│   └── page.tsx          # The main landing page
+│
+├── components/
+│   ├── ui/               # Reusable UI components (from Shadcn)
+│   ├── AdminLayout.tsx   # Layout component for the admin dashboard
+│   ├── StudentLayout.tsx # Layout component for the student dashboard
+│   └── ...               # Other reusable components
+│
+├── lib/
+│   ├── services/         # Functions for making API calls
+│   │   ├── api.ts        # Axios instance configuration
+│   │   ├── auth.ts       # Authentication-related API calls
+│   │   └── ...
+│   └── utils.ts          # Utility functions
+│
+├── public/               # Static assets (images, icons)
+├── package.json
+└── next.config.ts        # Next.js configuration
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Key Concepts
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-   **Routing:** File-system based routing with the App Router. Folders in `app/` define URL segments.
+-   **Layouts:** `layout.tsx` files define a UI that is shared across multiple pages.
+-   **Route Groups:** Directories in parentheses, like `(admin)`, are used to group routes together without affecting the URL structure. This is used here to create separate layouts for admin and student sections.
+-   **Components:** The `components/` directory contains all reusable React components. The `components/ui` subdirectory is specifically for the components provided by Shadcn/ui.
+-   **Services:** API interactions are abstracted away into the `lib/services/` directory, keeping data-fetching logic separate from the UI.
+-   **Authentication:** The `AuthGuard` component and protected layouts are used to ensure that only authenticated users can access certain pages.
